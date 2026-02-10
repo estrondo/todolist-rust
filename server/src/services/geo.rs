@@ -33,9 +33,11 @@ where
 
     async fn upsert_location(
         &self,
-        _request: Request<Streaming<UpsertLocationRequest>>,
+        request: Request<UpsertLocationRequest>,
     ) -> std::result::Result<Response<UpsertLocationResponse>, Status> {
-        log::info!("Upserting a location {:?}", _request.get_ref());
+        log::info!("Upserting a location {:?}", request.get_ref());
+
+        
 
         unimplemented!()
     }

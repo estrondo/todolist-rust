@@ -1,7 +1,9 @@
 [package]
-name = "todolist_core"
+name = "todolist-core"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 async-trait = "0.1.89"
+geo = "0.32.0"
+uuid = { version = "1.20.0", features = ["v7"] }

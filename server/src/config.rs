@@ -5,12 +5,18 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
     pub server: Server,
+    pub geo_persistence: Postgres,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Server {
     pub address: String,
     pub port: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Postgres {
+    pub url: String,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -46,6 +52,9 @@ impl Configuration {
             server: Server {
                 port: 8080,
                 address: String::from("0.0.0.0"),
+            },
+            geo_persistence: Postgres {
+                url: "postgres://todolist-geo:todolist-geo@localhost/todolist".into(),
             },
         }
     }
