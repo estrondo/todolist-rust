@@ -1,3 +1,3 @@
 [workspace]
 resolver = "3"
-members = ["todolist_core", "todolist_server"]
+members = ["core", "server"]

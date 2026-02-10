@@ -1,11 +1,11 @@
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    compile_service()?;
+    compile_grpc_specification()?;
     Ok(())
 }
 
-fn compile_service() -> Result<(), Box<dyn Error>> {
+fn compile_grpc_specification() -> Result<(), Box<dyn Error>> {
     let files: Vec<String> = ["account", "geo", "reminder", "security", "todo"]
         .iter()
         .map(|x| format!("../grpc-specification/todolist/v1/{x}.proto"))
