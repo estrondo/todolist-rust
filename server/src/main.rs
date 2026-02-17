@@ -3,13 +3,10 @@ use core::error::Error;
 use log;
 use simple_logger::SimpleLogger;
 use std::net::SocketAddr;
-use todolist_core::manager::geo::PersistentGeoManager;
-use todolist_persistence_postgres::geo::PostgresGeoPersistence;
 use todolist_server::{
-    api::v1::geo_service_server::GeoServiceServer,
-    config::{Configuration, Mode},
-    modules::persistence::PersistenceModule,
-    services::geo::GeoServiceImpl,
+    api::v1::todo_service_server::TodoServiceServer,
+    configuration::{Configuration, Mode},
+    module::{manager::ManagerModule, repository::RepositoryModule, service::ServiceModule},
 };
 use tonic::transport::Server;
 
@@ -36,11 +33,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()?
         .try_deserialize()?;
 
-    log::debug!("Preparing all services.");
+    log::info!("Preparing all services.");
 
-    let persistence_module = PersistenceModule::new(&configuration);
-    let geo_manager = PersistentGeoManager::new(geo_persistence);
-    let geo_service = GeoServiceImpl::new(geo_manager);
+    let repository_module = RepositoryModule::new(&configuration);
+    let manager_module = ManagerModule::new(&configuration, &repository_module);
+    let service_module = ServiceModule::new(&configuration, &manager_module);
 
     let addr: SocketAddr = format!(
         "{}:{}",
@@ -51,7 +48,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::info!("Starting the server at {}", addr);
 
     Server::builder()
-        .add_service(GeoServiceServer::new(geo_service))
+        .add_service(TodoServiceServer::new(service_module.todo_service()))
         .serve(addr)
         .await?;
 

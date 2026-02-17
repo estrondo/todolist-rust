@@ -2,19 +2,19 @@ use std::{env, u32};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Configuration {
     pub server: Server,
     pub geo_persistence: Postgres,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
     pub address: String,
     pub port: u32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Postgres {
     pub url: String,
 }
