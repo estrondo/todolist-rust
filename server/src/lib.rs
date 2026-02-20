@@ -9,3 +9,9 @@ pub mod configuration;
 pub mod service;
 
 pub mod module;
+
+pub mod model;
+
+pub(crate) mod convert;
+
+pub mod auth;

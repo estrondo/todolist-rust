@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Configuration {
     pub server: Server,
-    pub geo_persistence: Postgres,
+    pub postgres: Postgres,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,14 +16,17 @@ pub struct Server {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Postgres {
-    pub url: String,
+    pub username: String,
+    pub password: String,
+    pub address: String,
+    pub database: String,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Mode {
-    Dev(),
-    Stg(),
-    Prd(),
+    Dev,
+    Stg,
+    Prd,
 }
 
 impl Configuration {
@@ -35,9 +38,9 @@ impl Configuration {
         let args: Vec<String> = env::args().collect();
         match args.get(1).map(|x| x.to_lowercase()) {
             Some(value) => match value.as_ref() {
-                "dev" => (Self::dev(), Mode::Dev()),
-                "stg" => (Self::stg(), Mode::Stg()),
-                "prd" => (Self::prd(), Mode::Prd()),
+                "dev" => (Self::dev(), Mode::Dev),
+                "stg" => (Self::stg(), Mode::Stg),
+                "prd" => (Self::prd(), Mode::Prd),
                 _ => panic!(
                     "Configuration failed: The mode '{}' is not recognised, values supported: dev, stg or prd.",
                     value
@@ -53,8 +56,11 @@ impl Configuration {
                 port: 8080,
                 address: String::from("0.0.0.0"),
             },
-            geo_persistence: Postgres {
-                url: "postgres://todolist-geo:todolist-geo@localhost/todolist".into(),
+            postgres: Postgres {
+                username: String::from("todolist"),
+                password: String::from("todolist"),
+                address: String::from("localhost"),
+                database: String::from("todolist"),
             },
         }
     }

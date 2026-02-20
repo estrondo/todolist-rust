@@ -1,24 +1,26 @@
-use todolist_core::manager::{TodoManager, default::PersistentTodoManager};
+use std::sync::Arc;
+
+use todolist_core::manager::{PersistentTodoManager, TodoManager};
 
 use crate::{configuration::Configuration, module::repository::RepositoryModule};
+use todolist_core::Result;
 
-pub struct ManagerModule<'c> {
-    configuration: &'c Configuration,
-    repository_module: &'c RepositoryModule<'c>,
+pub struct ManagerModule {
+    todo_manager: Arc<dyn TodoManager>,
 }
 
-impl<'c> ManagerModule<'c> {
+impl<'c> ManagerModule {
     pub fn new(
-        configuration: &'c Configuration,
-        repository_module: &'c RepositoryModule<'c>,
-    ) -> Self {
-        Self {
-            configuration,
-            repository_module,
-        }
+        _configuration: &Configuration,
+        repository_module: &RepositoryModule,
+    ) -> Result<Self> {
+        let todo_manager = Arc::new(PersistentTodoManager::new(
+            repository_module.todo_repository(),
+        ));
+        Result::Ok(Self { todo_manager })
     }
 
-    pub fn todo_manager(&self) -> impl TodoManager {
-        PersistentTodoManager::new(self.repository_module.todo_repository())
+    pub fn todo_manager(&self) -> Arc<dyn TodoManager> {
+        self.todo_manager.clone()
     }
 }

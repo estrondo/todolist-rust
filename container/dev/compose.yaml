@@ -1,0 +1,11 @@
+name: todolist-dev
+
+services:
+  postgres:
+    image: docker.io/postgis/postgis:17-3.6-alpine
+    environment:
+      POSTGRES_USER: todolist
+      POSTGRES_PASSWORD: todolist
+      POSTGRES_DB: todolist
+    ports:
+      - 5432:5432

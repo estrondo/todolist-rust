@@ -1,8 +1,9 @@
 use async_trait::async_trait;
+use log;
 
 use crate::{
-    Result,
-    manager::TodoManager,
+    error::ManagerError,
+    manager::{ManagerResult, TodoManager},
     model::{Todo, TodoId},
     persistence::TodoRepository,
 };
@@ -11,11 +12,11 @@ pub struct PersistentTodoManager<P: TodoRepository> {
     repository: P,
 }
 
-impl<P> PersistentTodoManager<P>
+impl<R> PersistentTodoManager<R>
 where
-    P: TodoRepository,
+    R: TodoRepository,
 {
-    pub fn new(repository: P) -> Self {
+    pub fn new(repository: R) -> Self {
         Self { repository }
     }
 }
@@ -25,11 +26,23 @@ impl<P> TodoManager for PersistentTodoManager<P>
 where
     P: TodoRepository + Send + Sync,
 {
-    async fn upsert(&self, todo: &Todo) -> Result<()> {
-        unimplemented!()
+    async fn upsert<'a>(&self, todo: &'a Todo) -> ManagerResult<Todo> {
+        let result = self
+            .repository
+            .upsert(todo)
+            .await
+            .inspect_err(|e| log::error!("Unable to upsert a Todo item: {}", e.to_string()))
+            .map_err(|e| ManagerError::CausedByPersistence {
+                message: String::from("Unable to upsert Todo item."),
+                cause: e,
+            })?
+            .inspect_insert(|item| log::info!(todo_id = item.id; "Todo item was inserted."))
+            .inspect_update(|item| log::info!(todo_id = item.id; "Todo item was updated."));
+
+        ManagerResult::Ok(result.into_value())
     }
 
-    async fn remove(&self, todo_id: &TodoId) -> Result<()> {
+    async fn remove<'a>(&self, todo_id: &'a TodoId) -> ManagerResult<Option<Todo>> {
         unimplemented!()
     }
 }

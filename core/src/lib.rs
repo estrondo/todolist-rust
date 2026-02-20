@@ -1,9 +1,13 @@
 use core::error::Error;
 
+pub mod model;
+
 pub mod persistence;
 
 pub mod manager;
 
-pub mod model;
+pub mod error;
 
-pub type Result<T> = core::result::Result<T, Box<dyn Error>>;
+pub mod convert;
+
+pub type Result<T, E = Box<dyn Error>> = core::result::Result<T, E>;

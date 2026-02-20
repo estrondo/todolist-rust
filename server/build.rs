@@ -13,6 +13,8 @@ fn compile_grpc_specification() -> Result<(), Box<dyn Error>> {
 
     tonic_prost_build::configure()
         .build_client(false)
+        .type_attribute(".todolist.v1.Todo.Item", "#[derive(o2o::o2o)] #[try_map_owned(todolist_core::model::Todo, todolist_core::error::ConvertError)]")
+        .field_attribute(".todolist.v1.Todo.Item", "#[into(~.try_into()?)] #[from(~.try_into()?)]")
         .compile_protos(&files, &[String::from("../grpc-specification/")])?;
 
     Ok(())

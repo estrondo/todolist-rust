@@ -21,9 +21,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::info!(
         "{}",
         match mode {
-            Mode::Dev() => "Well, it's starting in development environment, let's make it happen!",
-            Mode::Stg() => "Are you ready to test? I am starting for tests purposes!",
-            Mode::Prd() => "Okay, our mission is to help the people to have their lives organised!",
+            Mode::Dev => "Well, it's starting in development environment, let's make it happen!",
+            Mode::Stg => "Are you ready to test? I am starting for tests purposes!",
+            Mode::Prd => "Okay, our mission is to help the people to have their lives organised!",
         }
     );
 
@@ -33,11 +33,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()?
         .try_deserialize()?;
 
-    log::info!("Preparing all services.");
+    log::info!("Preparing the server...");
 
-    let repository_module = RepositoryModule::new(&configuration);
-    let manager_module = ManagerModule::new(&configuration, &repository_module);
-    let service_module = ServiceModule::new(&configuration, &manager_module);
+    let repository_module = RepositoryModule::new(&configuration)
+        .await
+        .inspect_err(|e| {
+            log::error!("Unable to create the repository module: {}.", e.to_string())
+        })?;
+
+    let manager_module = ManagerModule::new(&configuration, &repository_module)?;
+    let service_module = ServiceModule::new(&configuration, &manager_module)?;
 
     let addr: SocketAddr = format!(
         "{}:{}",
@@ -45,7 +50,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .parse()?;
 
-    log::info!("Starting the server at {}", addr);
+    log::info!("Starting the server at {}.", addr);
 
     Server::builder()
         .add_service(TodoServiceServer::new(service_module.todo_service()))

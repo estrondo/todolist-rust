@@ -1,0 +1,103 @@
+use std::{
+    convert::Infallible,
+    error::Error,
+    fmt::{Debug, Display, Write},
+};
+
+#[derive(Debug)]
+pub struct ConvertError {
+    message: String,
+}
+
+impl ConvertError {
+    pub fn message(&self) -> String {
+        self.message.clone()
+    }
+}
+
+impl From<String> for ConvertError {
+    fn from(message: String) -> Self {
+        Self { message }
+    }
+}
+
+impl From<&str> for ConvertError {
+    fn from(value: &str) -> Self {
+        Self {
+            message: String::from(value),
+        }
+    }
+}
+
+impl From<uuid::Error> for ConvertError {
+    fn from(value: uuid::Error) -> Self {
+        Self {
+            message: value.to_string(),
+        }
+    }
+}
+
+impl From<Infallible> for ConvertError {
+    fn from(_: Infallible) -> Self {
+        ConvertError {
+            message: String::from("Unexpected error!"),
+        }
+    }
+}
+
+pub enum ManagerError {
+    Internal {
+        message: String,
+    },
+    CausedByError {
+        message: String,
+        cause: Box<dyn Error>,
+    },
+    CausedByPersistence {
+        message: String,
+        cause: PersistenceError,
+    },
+}
+
+impl ManagerError {
+    pub fn message(&self) -> String {
+        match self {
+            ManagerError::Internal { message } => message.to_owned(),
+            ManagerError::CausedByError { message, cause: _ } => message.to_owned(),
+            ManagerError::CausedByPersistence { message, cause: _ } => message.to_owned(),
+        }
+    }
+}
+
+impl From<Box<dyn Error>> for ManagerError {
+    fn from(value: Box<dyn Error>) -> Self {
+        ManagerError::CausedByError {
+            message: value.to_string(),
+            cause: value,
+        }
+    }
+}
+
+pub enum PersistenceError {
+    InvalidState {
+        message: String,
+    },
+    UnexpectedError {
+        message: String,
+        cause: Option<Box<dyn Error>>,
+    },
+}
+
+impl Display for PersistenceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PersistenceError::InvalidState { message } => {
+                f.write_str(&format!("InvalidState: {message}"))
+            }
+            PersistenceError::UnexpectedError { message, cause } => {
+                f.write_str(&format!("UnexpectedError: {message}"))?;
+                cause.fmt(f)
+            }
+        }
+    }
+}
