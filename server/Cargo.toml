@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 todolist-core = { path = "../core" }
 todolist-persistence-postgres = { path = "../persistence/postgres" }
+migration = { path = "../migration" }
 tokio = { version = "1.49.0", features = ["full"] }
 tokio-stream = { version = "*" }
 tonic = "0.14.3"
