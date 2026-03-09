@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-async-trait = "0.1.89"
-geo = "0.32.0"
-uuid = { version = "1.20.0", features = ["v7"] }
-time = { version = "0.3.47" }
-log = { version = "0.4.29", features = ["kv"] }
+arbitrary = { workspace = true }
+async-trait = { workspace = true }
+geo = { workspace = true }
+log = { workspace = true }
+time = { workspace = true }
+uuid = { workspace = true }

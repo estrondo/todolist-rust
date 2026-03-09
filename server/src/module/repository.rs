@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
@@ -9,7 +9,7 @@ use crate::configuration::Configuration;
 
 #[derive(Debug)]
 pub struct RepositoryModule {
-    connection: Arc<DatabaseConnection>,
+    connection: DatabaseConnection,
 }
 
 async fn start_migration(con: &DatabaseConnection) -> Result<()> {
@@ -35,7 +35,7 @@ impl RepositoryModule {
             .inspect_err(|_| log::error!("Migration failed."))?;
 
         Ok(RepositoryModule {
-            connection: Arc::new(connection),
+            connection: connection,
         })
     }
 

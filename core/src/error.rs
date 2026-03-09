@@ -78,6 +78,7 @@ impl From<Box<dyn Error>> for ManagerError {
     }
 }
 
+#[derive(Debug)]
 pub enum PersistenceError {
     InvalidState {
         message: String,

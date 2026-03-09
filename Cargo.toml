@@ -1,3 +1,30 @@
 [workspace]
-resolver = "3"
 members = ["core", "server", "persistence/postgres", "migration"]
+resolver = "3"
+
+[workspace.dependencies]
+arbitrary = { version = "1.4.2", features = ["derive"] }
+async-trait = "0.1.89"
+config = "0.15.19"
+futures = "0.3.32"
+geo = "0.32.0"
+log = { version = "0.4.29", features = ["kv"] }
+o2o = "0.5.4"
+prost = "0.14.3"
+rand = "0.10.0"
+rstest = "0.26.1"
+sea-orm = { version = "2.0.0-rc", features = [
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+    "macros",
+] }
+serde = { version = "1.0.228", features = ["derive"] }
+simple_logger = { version = "5.1.0" }
+testcontainers-modules = { version = "0.15.0", features = ["blocking"] }
+time = { version = "0.3.47", features = ["quickcheck"] }
+tokio = { version = "1.49.0", features = ["rt"] }
+tokio-stream = { version = "*" }
+tonic = "0.14.3"
+tonic-prost = "0.14.3"
+tonic-prost-build = "0.14.3"
+uuid = { version = "1.20.0", features = ["v7", "arbitrary"] }

@@ -1,11 +1,11 @@
-use time::{Date, Month, Time};
+use time::{Date, Duration, Month, Time, UtcDateTime};
 use todolist_core::{
     error::{ConvertError, ManagerError},
     model::{TodoContent, TodoDueDate},
 };
 use tonic::Status;
 
-use crate::api::v1::todo::{Content, DueDate};
+use crate::api::v1::todo::{Content, DueDate, content::Content as ContentEnum, due_date::When};
 
 pub(crate) fn invalid_request_message(error: ConvertError) -> Status {
     Status::invalid_argument(error.message())
@@ -27,7 +27,11 @@ impl TryInto<TodoContent> for Content {
     type Error = ConvertError;
 
     fn try_into(self) -> Result<TodoContent, Self::Error> {
-        todo!()
+        match self.content {
+            Some(ContentEnum::Plain(value)) => Ok(TodoContent::Plain(value.content)),
+            Some(ContentEnum::Markdown(value)) => Ok(TodoContent::Markdown(value.content)),
+            None => Err(ConvertError::from("Empty Content!")),
+        }
     }
 }
 
@@ -43,11 +47,34 @@ fn to_time(h: u8, m: u8, s: u8) -> Result<Time, ConvertError> {
         .map_err(|e| ConvertError::from(format!("Invalid time: {}", e.to_string())))
 }
 
+fn to_month(m: u8) -> Result<Month, ConvertError> {
+    Month::try_from(m).map_err(|_| ConvertError::from(format!("Invalid month {m}.")))
+}
+
 impl TryFrom<DueDate> for TodoDueDate {
     type Error = ConvertError;
 
     fn try_from(value: DueDate) -> Result<Self, Self::Error> {
-        todo!()
+        match value.when {
+            Some(When::WholeDay(whole_day)) => {
+                let date = Date::from_calendar_date(
+                    whole_day.year as i32,
+                    to_month(whole_day.month as u8)?,
+                    whole_day.day as u8,
+                )
+                .map_err(|e| ConvertError::from(e.to_string()))?;
+                Ok(Self::WholeDay(date))
+            }
+            Some(When::Period(period)) => {
+                let date = to_date(period.year as i32, period.month as u8, period.day as u8)?;
+                let time = to_time(period.hour as u8, period.minute as u8, 0)?;
+                Ok(TodoDueDate::Period(
+                    UtcDateTime::new(date, time),
+                    Duration::minutes(period.minutes as i64),
+                ))
+            }
+            None => Err(ConvertError::from("Empty DueDate.")),
+        }
     }
 }
 

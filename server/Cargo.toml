@@ -4,26 +4,22 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+migration = { path = "../migration" }
 todolist-core = { path = "../core" }
 todolist-persistence-postgres = { path = "../persistence/postgres" }
-migration = { path = "../migration" }
-tokio = { version = "1.49.0", features = ["full"] }
-tokio-stream = { version = "*" }
-tonic = "0.14.3"
-tonic-prost = "0.14.3"
-prost = "0.14.3"
-config = "0.15.19"
-serde = { version = "1.0.228", features = ["derive"] }
-log = { version = "0.4.29", features = ["kv"] }
-simple_logger = { version = "5.1.0" }
-async-trait = "0.1.89"
-sea-orm = { version = "2.0.0-rc", features = [
-    "sqlx-postgres",
-    "runtime-tokio-rustls",
-    "macros",
-] }
-o2o = "0.5.4"
-time = { version = "0.3.47" }
+async-trait = { workspace = true }
+config = { workspace = true }
+log = { workspace = true }
+o2o = { workspace = true }
+prost = { workspace = true }
+sea-orm = { workspace = true }
+serde = { workspace = true }
+simple_logger = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
 
 [build-dependencies]
-tonic-prost-build = "0.14.3"
+tonic-prost-build = { workspace = true }

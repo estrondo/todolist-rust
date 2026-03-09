@@ -4,6 +4,7 @@ use crate::Result;
 use crate::error::PersistenceError;
 use crate::model::{Todo, TodoId};
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum UpsertResult<T> {
     Updated(T),
     Inserted(T),
