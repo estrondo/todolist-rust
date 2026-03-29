@@ -12,7 +12,7 @@ sea-orm = { workspace = true }
 time = { workspace = true }
 
 [dev-dependencies]
-arbitrary = { workspace = true }
+checkito = { workspace = true }
 futures = { workspace = true }
 rand = { workspace = true }
 rstest = { workspace = true }

@@ -4,7 +4,7 @@ use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::core::error::Result;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt, TestcontainersError};
-
+#[derive(Debug)]
 pub struct PostgresContainer {
     container: ContainerAsync<Postgres>,
     connection: DatabaseConnection,

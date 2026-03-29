@@ -1,48 +1,33 @@
-use arbitrary::{Arbitrary, Unstructured};
-use rand::{TryRng, rngs::SmallRng};
-use rstest::*;
-use todolist_core::persistence::TodoRepository;
-use todolist_core::{model::Todo, persistence::UpsertResult};
+mod with_checkito {
 
-use crate::{PostgresTodoRepository, tests::containers::PostgresContainer};
+    use std::num::NonZeroUsize;
 
-type DNA = [u8; 512];
+    use checkito::{Check, FullGenerate};
+    use todolist_core::{
+        model::Todo,
+        persistence::{TodoRepository, UpsertResult},
+    };
 
-#[fixture]
-fn random() -> DNA {
-    let mut u: DNA = [0u8; 512];
-    let mut x: SmallRng = rand::make_rng();
-    x.try_fill_bytes(&mut u).unwrap();
-    u
-}
+    use crate::{PostgresTodoRepository, tests::containers::PostgresContainer};
 
-#[fixture]
-pub async fn postgres_container() -> PostgresContainer {
-    PostgresContainer::new().await.unwrap()
-}
+    #[tokio::test]
+    async fn simple_todo_test() {
+        let container = PostgresContainer::new().await.unwrap();
+        let repository = PostgresTodoRepository::new(container.connection().clone());
 
-#[fixture]
-pub fn todo_item(random: DNA) -> Todo {
-    let mut unstructed = Unstructured::new(&random);
-    Todo::arbitrary(&mut unstructed).unwrap()
-}
+        let checker = Todo::generator()
+            .checker()
+            .asynchronous(NonZeroUsize::new(2));
 
-#[rstest]
-#[tokio::test]
-async fn concat_test(
-    #[future(awt)] postgres_container: PostgresContainer,
-    #[values(
-        todo_item(random()),
-        todo_item(random()),
-        todo_item(random()),
-        todo_item(random()),
-        todo_item(random())
-    )]
-    todo_item: Todo,
-) {
-    let repository = PostgresTodoRepository::new(postgres_container.connection().clone());
+        let result = checker
+            .check(async |todo| {
+                let upserted = repository.upsert(&todo).await.unwrap();
+                assert_eq!(upserted, UpsertResult::Inserted(todo))
+            })
+            .await;
 
-    let upserted = repository.upsert(&todo_item).await.unwrap();
-    println!("{upserted:?}");
-    assert_eq!(upserted, UpsertResult::Inserted(todo_item))
+        if let Some(fail) = result {
+            panic!("{fail:?}")
+        }
+    }
 }

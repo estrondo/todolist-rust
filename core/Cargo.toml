@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-arbitrary = { workspace = true }
 async-trait = { workspace = true }
+checkito = { workspace = true }
 geo = { workspace = true }
 log = { workspace = true }
+orn = { workspace = true }
 time = { workspace = true }
 uuid = { workspace = true }

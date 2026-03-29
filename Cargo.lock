@@ -113,9 +113,6 @@ name = "arbitrary"
 version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d036a3c4ab069c7b410a2ce876bd74808d2d0888a82667669f8e783a898bf1"
-dependencies = [
- "derive_arbitrary",
-]
 
 [[package]]
 name = "arraydeque"
@@ -613,6 +610,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "checkito"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "673cf3d06761f0b448b23cd6d9e0976ec79244d845830de75908e52ec2c9e6ac"
+dependencies = [
+ "checkito_macro",
+ "fastrand",
+ "futures-lite",
+ "orn",
+ "pin-project-lite",
+ "ref-cast",
+ "regex-syntax",
+]
+
+[[package]]
+name = "checkito_macro"
+version = "0.5.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a8b0a89161a57d698baa348861c66383f655878a47909c56ab43350a4e83c850"
+dependencies = [
+ "quote",
+ "regex-syntax",
+ "syn 2.0.114",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -931,17 +954,6 @@ dependencies = [
  "powerfmt",
  "quickcheck",
  "serde_core",
-]
-
-[[package]]
-name = "derive_arbitrary"
-version = "1.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e567bd82dcff979e4b03460c307b3cdc9e96fde3d73bed1496d2bc75d9dd62a"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.114",
 ]
 
 [[package]]
@@ -2305,6 +2317,15 @@ checksum = "49203cdcae0030493bad186b28da2fa25645fa276a51b6fec8010d281e02ef79"
 dependencies = [
  "dlv-list",
  "hashbrown 0.14.5",
+]
+
+[[package]]
+name = "orn"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80edf8e25cc9bfc30c52ec760268a2cb5292391e1fc6d34b893383e16ec23ab9"
+dependencies = [
+ "pin-project-lite",
 ]
 
 [[package]]
@@ -4158,10 +4179,11 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 name = "todolist-core"
 version = "0.1.0"
 dependencies = [
- "arbitrary",
  "async-trait",
+ "checkito",
  "geo",
  "log",
+ "orn",
  "time",
  "uuid",
 ]
@@ -4170,8 +4192,8 @@ dependencies = [
 name = "todolist-persistence-postgres"
 version = "0.1.0"
 dependencies = [
- "arbitrary",
  "async-trait",
+ "checkito",
  "futures",
  "migration",
  "rand 0.10.0",

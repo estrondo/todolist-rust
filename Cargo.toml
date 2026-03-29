@@ -3,13 +3,14 @@ members = ["core", "server", "persistence/postgres", "migration"]
 resolver = "3"
 
 [workspace.dependencies]
-arbitrary = { version = "1.4.2", features = ["derive"] }
 async-trait = "0.1.89"
+checkito = "5.0.0"
 config = "0.15.19"
 futures = "0.3.32"
 geo = "0.32.0"
 log = { version = "0.4.29", features = ["kv"] }
 o2o = "0.5.4"
+orn = "1.0.0"
 prost = "0.14.3"
 rand = "0.10.0"
 rstest = "0.26.1"

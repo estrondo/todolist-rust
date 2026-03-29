@@ -1,12 +1,17 @@
-use arbitrary::Arbitrary;
 use log::kv::{ToValue, Value};
 use time::{Date, Duration, UtcDateTime};
 use uuid::Uuid;
 
 mod foreign;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Arbitrary)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct TodoId(pub Uuid);
+
+impl TodoId {
+    pub fn new(h: u64, l: u64) -> Self {
+        Self(Uuid::from_u64_pair(h, l))
+    }
+}
 
 impl ToValue for TodoId {
     fn to_value(&self) -> log::kv::Value<'_> {
@@ -14,7 +19,7 @@ impl ToValue for TodoId {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Arbitrary)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct TodoTitle(pub String);
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
@@ -24,7 +29,7 @@ pub enum TodoDueDate {
 }
 
 #[repr(u8)]
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Arbitrary)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum TodoStatus {
     Unspecified = 0,
     Active = 1,
@@ -33,13 +38,13 @@ pub enum TodoStatus {
     Done = 4,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Arbitrary)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum TodoContent {
     Markdown(String),
     Plain(String),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Arbitrary, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Todo {
     pub id: TodoId,
     pub title: TodoTitle,
