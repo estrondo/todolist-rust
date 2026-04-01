@@ -1,7 +1,7 @@
 use std::{
     convert::Infallible,
     error::Error,
-    fmt::{Debug, Display, Write},
+    fmt::{Debug, Display},
 };
 
 #[derive(Debug)]

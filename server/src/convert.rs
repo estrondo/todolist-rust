@@ -81,7 +81,7 @@ impl TryFrom<DueDate> for TodoDueDate {
 impl TryFrom<TodoDueDate> for DueDate {
     type Error = ConvertError;
 
-    fn try_from(value: TodoDueDate) -> Result<Self, Self::Error> {
+    fn try_from(_value: TodoDueDate) -> Result<Self, Self::Error> {
         todo!()
     }
 }
@@ -89,7 +89,7 @@ impl TryFrom<TodoDueDate> for DueDate {
 impl TryFrom<TodoContent> for Content {
     type Error = ConvertError;
 
-    fn try_from(value: TodoContent) -> Result<Self, Self::Error> {
+    fn try_from(_value: TodoContent) -> Result<Self, Self::Error> {
         todo!()
     }
 }

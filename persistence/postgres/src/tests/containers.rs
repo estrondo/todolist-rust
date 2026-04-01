@@ -6,7 +6,7 @@ use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt, TestcontainersError};
 #[derive(Debug)]
 pub struct PostgresContainer {
-    container: ContainerAsync<Postgres>,
+    _container: ContainerAsync<Postgres>,
     connection: DatabaseConnection,
 }
 
@@ -33,7 +33,7 @@ impl PostgresContainer {
             .map_err(|e| TestcontainersError::Other(Box::new(e)))?;
 
         Ok(Self {
-            container,
+            _container: container,
             connection,
         })
     }

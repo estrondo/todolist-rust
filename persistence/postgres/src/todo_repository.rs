@@ -9,6 +9,7 @@ use todolist_core::{
     persistence::{TodoRepository, UpsertResult},
 };
 
+#[derive(Clone)]
 pub struct PostgresTodoRepository {
     connection: DatabaseConnection,
 }
@@ -32,7 +33,7 @@ impl TodoRepository for PostgresTodoRepository {
 
         Ok(UpsertResult::Inserted(inserted))
     }
-    async fn delete(&self, todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
+    async fn delete(&self, _todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
         unimplemented!()
     }
 }

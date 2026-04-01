@@ -109,12 +109,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arbitrary"
-version = "1.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3d036a3c4ab069c7b410a2ce876bd74808d2d0888a82667669f8e783a898bf1"
-
-[[package]]
 name = "arraydeque"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -625,6 +619,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "checkito_ext"
+version = "0.1.0"
+dependencies = [
+ "checkito",
+]
+
+[[package]]
 name = "checkito_macro"
 version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -952,7 +953,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ececcb659e7ba858fb4f10388c250a7252eb0a27373f1a72b8748afdd248e587"
 dependencies = [
  "powerfmt",
- "quickcheck",
  "serde_core",
 ]
 
@@ -2771,15 +2771,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "quickcheck"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95c589f335db0f6aaa168a7cd27b1fc6920f5e1470c804f814d9cd6e62a0f70b"
-dependencies = [
- "rand 0.10.0",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4119,7 +4110,6 @@ dependencies = [
  "num-conv",
  "num_threads",
  "powerfmt",
- "quickcheck",
  "serde_core",
  "time-core",
  "time-macros",
@@ -4194,6 +4184,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "checkito",
+ "checkito_ext",
  "futures",
  "migration",
  "rand 0.10.0",
@@ -4617,7 +4608,6 @@ version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee48d38b119b0cd71fe4141b30f5ba9c7c5d9f4e7a3a8b4a674e4b6ef789976f"
 dependencies = [
- "arbitrary",
  "getrandom 0.3.4",
  "js-sys",
  "serde_core",

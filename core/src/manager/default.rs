@@ -42,7 +42,7 @@ where
         ManagerResult::Ok(result.into_value())
     }
 
-    async fn remove<'a>(&self, todo_id: &'a TodoId) -> ManagerResult<Option<Todo>> {
+    async fn remove<'a>(&self, _todo_id: &'a TodoId) -> ManagerResult<Option<Todo>> {
         unimplemented!()
     }
 }

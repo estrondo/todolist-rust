@@ -7,14 +7,15 @@ edition = "2024"
 [dependencies]
 migration = { path = "../../migration" }
 todolist-core = { path = "../../core" }
-async-trait = { workspace = true }
-sea-orm = { workspace = true }
-time = { workspace = true }
+async-trait.workspace = true
+sea-orm.workspace = true
+time.workspace = true
 
 [dev-dependencies]
-checkito = { workspace = true }
-futures = { workspace = true }
-rand = { workspace = true }
-rstest = { workspace = true }
+checkito_ext.path = "../../ext/checkito"
+checkito.workspace = true
+futures.workspace = true
+rand.workspace = true
+rstest.workspace = true
 testcontainers-modules = { workspace = true, features = ["postgres"] }
-tokio = { workspace = true }
+tokio.workspace = true

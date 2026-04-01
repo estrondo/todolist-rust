@@ -11,7 +11,6 @@ use crate::api::v1::todo::{
     SearchResponse, TodayRequest, TodayResponse, UpsertItemRequest, UpsertItemResponse,
 };
 use crate::api::v1::todo_service_server::TodoService;
-use crate::auth::extract_auth_info;
 use crate::convert::{
     invalid_request_message, manager_error_to_status, unexpected_internal_conversion_error,
 };
@@ -30,17 +29,17 @@ impl DefaultTodoService {
 impl TodoService for DefaultTodoService {
     type GetStream = ReceiverStream<Result<GetResponse>>;
 
-    async fn today(&self, request: Request<TodayRequest>) -> Result<Response<TodayResponse>> {
+    async fn today(&self, _request: Request<TodayRequest>) -> Result<Response<TodayResponse>> {
         unimplemented!()
     }
 
-    async fn search(&self, request: Request<SearchRequest>) -> Result<Response<SearchResponse>> {
+    async fn search(&self, _request: Request<SearchRequest>) -> Result<Response<SearchResponse>> {
         unimplemented!()
     }
 
     async fn get(
         &self,
-        request: Request<Streaming<GetRequest>>,
+        _request: Request<Streaming<GetRequest>>,
     ) -> Result<Response<Self::GetStream>> {
         unimplemented!()
     }
@@ -78,7 +77,7 @@ impl TodoService for DefaultTodoService {
 
     async fn remove_item(
         &self,
-        request: Request<RemoveItemRequest>,
+        _request: Request<RemoveItemRequest>,
     ) -> Result<Response<RemoveItemResponse>> {
         unimplemented!()
     }

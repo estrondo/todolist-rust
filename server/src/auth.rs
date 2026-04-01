@@ -1,17 +1,16 @@
-use std::{
-    error::Error,
-    fmt::{Display, Write},
-};
+use std::{error::Error, fmt::Display};
 
 use todolist_core::Result;
 use tonic::{Request, Status};
 
 #[derive(Debug, Default, Clone)]
-struct Token(Vec<u8>);
+struct Token {
+    _bytes: Vec<u8>,
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct AuthInfo {
-    token: Token,
+    _token: Token,
 }
 
 #[derive(Debug)]
