@@ -41,14 +41,13 @@ mod with_checkito {
 
     #[tokio::test]
     async fn same_test() {
-        let (_c, repository) = create_repository().await;
+        let (_c, repo) = create_repository().await;
 
-        ContextedChecker::new(|todo, repository: PostgresTodoRepository| async move {
-            println!("{todo:?}");
-            let inserted = repository.upsert(&todo).await.unwrap();
-            assert_eq!(inserted, UpsertResult::Inserted(todo))
-        })
-        .with(repository)
-        .await
+        ContextedChecker::new()
+            .with(&repo, |todo, repository| async {
+                let inserted = repository.upsert(&todo).await.unwrap();
+                assert_eq!(inserted, UpsertResult::Inserted(todo));
+            })
+            .await;
     }
 }

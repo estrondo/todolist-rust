@@ -1,29 +1,27 @@
+use std::marker::PhantomData;
 use std::num::NonZeroUsize;
 use std::{fmt::Debug, future::Future};
 
 use checkito::{Check, FullGenerate};
 
-pub struct ContextedChecker<A>(pub(crate) A);
+pub struct ContextedChecker<A>(PhantomData<A>);
 
-impl<A> ContextedChecker<A> {
-    pub fn new(a: A) -> Self {
-        Self(a)
+impl<A> ContextedChecker<A>
+where
+    A: FullGenerate<Item = A> + Debug,
+{
+    pub fn new() -> Self {
+        Self(PhantomData)
     }
-}
 
-impl<A> ContextedChecker<A> {
-    pub async fn with<G, FR, C>(self, context: C)
+    pub async fn with<'a, C, B, F>(&self, context: &'a C, block: B)
     where
-        A: Fn(G, C) -> FR,
-        G: FullGenerate<Item = G> + Debug,
-        FR: Future<Output = ()>,
-        C: Clone,
+        B: Fn(A, &'a C) -> F,
+        F: Future<Output = ()>,
     {
-        let checker = G::generator().checker().asynchronous(NonZeroUsize::new(2));
+        let checker = A::generator().checker().asynchronous(NonZeroUsize::new(1));
         let result = checker
-            .check(|item| async {
-                self.0(item, context.clone()).await;
-            })
+            .check(|item| async { block(item, context).await })
             .await;
 
         if let Some(fail) = result {

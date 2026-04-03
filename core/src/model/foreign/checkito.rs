@@ -7,9 +7,9 @@ use uuid::Uuid;
 
 use crate::model::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle};
 
-fn date_limits() -> RangeInclusive<i64> {
+fn date_range() -> RangeInclusive<i64> {
     let (d0, d1) = (
-        Date::from_calendar_date(2000, Month::January, 1).unwrap(),
+        Date::from_calendar_date(1950, Month::January, 1).unwrap(),
         Date::from_calendar_date(2050, Month::December, 31).unwrap(),
     );
 
@@ -33,14 +33,14 @@ fn uuid_generator() -> Boxed<Uuid> {
 }
 
 fn date_generator() -> Boxed<Date> {
-    Generate::map(date_limits(), |x| {
+    Generate::map(date_range(), |x| {
         UtcDateTime::from_unix_timestamp(x).unwrap().date()
     })
     .boxed()
 }
 
 fn utc_date_time_generator() -> Boxed<UtcDateTime> {
-    Generate::map(date_limits(), |x| {
+    Generate::map(date_range(), |x| {
         UtcDateTime::from_unix_timestamp(x).unwrap()
     })
     .boxed()
