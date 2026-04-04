@@ -85,8 +85,21 @@ pub enum PersistenceError {
     },
     UnexpectedError {
         message: String,
-        cause: Option<Box<dyn Error>>,
+        cause: Option<Box<dyn Debug>>,
     },
+    UnexpectedModelState {
+        message: String,
+        cause: Option<Box<dyn Debug>>,
+    },
+}
+
+impl PersistenceError {
+    pub fn invalid_state<T: Debug>(
+        message: String,
+        cause: Option<Box<dyn Debug>>,
+    ) -> PersistenceError {
+        PersistenceError::UnexpectedModelState { message, cause }
+    }
 }
 
 impl Display for PersistenceError {
@@ -97,6 +110,10 @@ impl Display for PersistenceError {
             }
             PersistenceError::UnexpectedError { message, cause } => {
                 f.write_str(&format!("UnexpectedError: {message}"))?;
+                cause.fmt(f)
+            }
+            PersistenceError::UnexpectedModelState { message, cause } => {
+                f.write_str(&format!("UnexpectedModelState: {message}"))?;
                 cause.fmt(f)
             }
         }

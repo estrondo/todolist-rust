@@ -1,12 +1,16 @@
+use crate::entities::todo::{Column, Entity};
+use crate::field::F;
+
 use super::convert::db_err_to_persistence_error;
 use super::entities::todo::{ActiveModel, Model};
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, DatabaseConnection};
+use migration::OnConflict;
+use sea_orm::{DatabaseConnection, EntityTrait};
 use todolist_core::Result;
 use todolist_core::error::PersistenceError;
 use todolist_core::{
     model::{Todo, TodoId},
-    persistence::{TodoRepository, UpsertResult},
+    persistence::TodoRepository,
 };
 
 #[derive(Clone)]
@@ -22,16 +26,41 @@ impl PostgresTodoRepository {
 
 #[async_trait]
 impl TodoRepository for PostgresTodoRepository {
-    async fn upsert(&self, todo: &Todo) -> Result<UpsertResult<Todo>, PersistenceError> {
+    async fn get(&self, id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
+        let opt = Entity::find_by_id(F::from(id))
+            .one(&self.connection)
+            .await
+            .map_err(db_err_to_persistence_error)?;
+
+        match opt {
+            Some(model) => model.try_into().map(Some),
+            None => Ok(None),
+        }
+    }
+
+    async fn upsert(&self, todo: &Todo) -> Result<Todo, PersistenceError> {
         let model: Model = todo.try_into()?;
         let active_model: ActiveModel = model.into();
-        let inserted: Todo = active_model
-            .insert(&self.connection)
+        let returned = Entity::insert(active_model)
+            .on_conflict(
+                OnConflict::column(Column::Id)
+                    .update_columns([
+                        Column::Title,
+                        Column::Status,
+                        Column::DueDateWholeDay,
+                        Column::DueDatePeriodStart,
+                        Column::DueDatePeriodDuration,
+                        Column::ContentMarkdown,
+                        Column::ContentPlainText,
+                    ])
+                    .to_owned(),
+            )
+            .exec_with_returning(&self.connection)
             .await
             .map_err(db_err_to_persistence_error)?
             .try_into()?;
 
-        Ok(UpsertResult::Inserted(inserted))
+        Ok(returned)
     }
     async fn delete(&self, _todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
         unimplemented!()

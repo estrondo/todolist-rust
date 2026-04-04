@@ -35,11 +35,9 @@ where
             .map_err(|e| ManagerError::CausedByPersistence {
                 message: String::from("Unable to upsert Todo item."),
                 cause: e,
-            })?
-            .inspect_insert(|item| log::info!(todo_id = item.id; "Todo item was inserted."))
-            .inspect_update(|item| log::info!(todo_id = item.id; "Todo item was updated."));
+            })?;
 
-        ManagerResult::Ok(result.into_value())
+        ManagerResult::Ok(result)
     }
 
     async fn remove<'a>(&self, _todo_id: &'a TodoId) -> ManagerResult<Option<Todo>> {
