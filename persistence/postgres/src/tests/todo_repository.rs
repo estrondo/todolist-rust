@@ -1,5 +1,5 @@
 use checkito_ext::async_check;
-use todolist_core::{model::Todo, persistence::TodoRepository};
+use todolist_core::{model::todo::Todo, persistence::TodoRepository};
 
 use crate::{PostgresTodoRepository, tests::containers::PostgresContainer};
 

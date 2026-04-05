@@ -8,8 +8,8 @@ use migration::OnConflict;
 use sea_orm::{DatabaseConnection, EntityTrait};
 use todolist_core::Result;
 use todolist_core::error::PersistenceError;
+use todolist_core::model::todo::{Todo, TodoId};
 use todolist_core::{
-    model::{Todo, TodoId},
     persistence::TodoRepository,
 };
 

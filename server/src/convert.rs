@@ -1,7 +1,7 @@
 use time::{Date, Duration, Month, Time, UtcDateTime};
 use todolist_core::{
     error::{ConvertError, ManagerError},
-    model::{TodoContent, TodoDueDate},
+    model::todo::{TodoContent, TodoDueDate},
 };
 use tonic::Status;
 
@@ -14,8 +14,8 @@ pub(crate) fn invalid_request_message(error: ConvertError) -> Status {
 pub(crate) fn manager_error_to_status(error: ManagerError) -> Status {
     match error {
         ManagerError::Internal { message } => Status::internal(message),
-        ManagerError::CausedByError { message, cause: _ }
-        | ManagerError::CausedByPersistence { message, cause: _ } => Status::internal(message),
+        ManagerError::UnexpectedError { message, cause: _ }
+        | ManagerError::PersistenceError { message, cause: _ } => Status::internal(message),
     }
 }
 

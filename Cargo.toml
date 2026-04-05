@@ -15,6 +15,7 @@ config = "0.15.19"
 futures = "0.3.32"
 geo = "0.32.0"
 log = { version = "0.4.29", features = ["kv"] }
+mockall = "0.14.0"
 o2o = "0.5.4"
 orn = "1.0.0"
 prost = "0.14.3"
@@ -29,7 +30,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 simple_logger = { version = "5.1.0" }
 testcontainers-modules = { version = "0.15.0", features = ["blocking"] }
 time = { version = "0.3.47" }
-tokio = { version = "1.49.0", features = ["rt"] }
+tokio = { version = "1.49.0", features = ["rt", "macros"] }
 tokio-stream = { version = "*" }
 tonic = "0.14.3"
 tonic-prost = "0.14.3"

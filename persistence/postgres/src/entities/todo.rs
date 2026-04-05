@@ -1,9 +1,6 @@
 use sea_orm::entity::prelude::*;
 use time::{Date, Duration, UtcDateTime};
-use todolist_core::{
-    error::PersistenceError,
-    model::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle},
-};
+use todolist_core::{error::PersistenceError, model::todo::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle}};
 
 use crate::field::{F, FO};
 

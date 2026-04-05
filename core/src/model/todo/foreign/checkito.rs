@@ -5,7 +5,7 @@ use orn::or2::Or;
 use time::{Date, Duration, Month, Time, UtcDateTime};
 use uuid::Uuid;
 
-use crate::model::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle};
+use super::super::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle};
 
 fn date_range() -> RangeInclusive<i64> {
     let (d0, d1) = (

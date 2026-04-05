@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use migration::{Nullable, ValueType, ValueTypeErr};
 use sea_orm::{DbErr, TryFromU64, TryGetError, TryGetable, Value, prelude::Uuid};
 use time::{Date, Duration, PrimitiveDateTime, UtcDateTime};
-use todolist_core::model::{TodoId, TodoStatus, TodoTitle};
+use todolist_core::model::todo::{TodoId, TodoStatus, TodoTitle};
 
 #[derive(Eq, PartialEq, PartialOrd, Clone, Debug)]
 pub struct F<T: Debug>(pub T);

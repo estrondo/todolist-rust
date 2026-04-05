@@ -1,9 +1,6 @@
+use super::model::todo::TodoId;
+use crate::{error::ConvertError, model::todo::{TodoContent, TodoDueDate, TodoStatus, TodoTitle}};
 use uuid::Uuid;
-
-use crate::{
-    error::ConvertError,
-    model::{TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle},
-};
 
 impl TryFrom<String> for TodoId {
     type Error = ConvertError;

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use todolist_core::error::{ConvertError, ManagerError};
 use todolist_core::manager::TodoManager;
-use todolist_core::model::Todo;
+use todolist_core::model::todo::Todo;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Result, Status, Streaming, async_trait};
 

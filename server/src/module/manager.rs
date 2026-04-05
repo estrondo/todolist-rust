@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use todolist_core::manager::{PersistentTodoManager, TodoManager};
+use todolist_core::manager::{DefaultTodoManager, TodoManager};
 
 use crate::{configuration::Configuration, module::repository::RepositoryModule};
 use todolist_core::Result;
@@ -14,7 +14,7 @@ impl<'c> ManagerModule {
         _configuration: &Configuration,
         repository_module: &RepositoryModule,
     ) -> Result<Self> {
-        let todo_manager = Arc::new(PersistentTodoManager::new(
+        let todo_manager = Arc::new(DefaultTodoManager::new(
             repository_module.todo_repository(),
         ));
         Result::Ok(Self { todo_manager })

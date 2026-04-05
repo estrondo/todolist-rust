@@ -45,15 +45,16 @@ impl From<Infallible> for ConvertError {
     }
 }
 
+#[derive(Debug)]
 pub enum ManagerError {
     Internal {
         message: String,
     },
-    CausedByError {
+    UnexpectedError {
         message: String,
         cause: Box<dyn Error>,
     },
-    CausedByPersistence {
+    PersistenceError {
         message: String,
         cause: PersistenceError,
     },
@@ -63,15 +64,15 @@ impl ManagerError {
     pub fn message(&self) -> String {
         match self {
             ManagerError::Internal { message } => message.to_owned(),
-            ManagerError::CausedByError { message, cause: _ } => message.to_owned(),
-            ManagerError::CausedByPersistence { message, cause: _ } => message.to_owned(),
+            ManagerError::UnexpectedError { message, cause: _ } => message.to_owned(),
+            ManagerError::PersistenceError { message, cause: _ } => message.to_owned(),
         }
     }
 }
 
 impl From<Box<dyn Error>> for ManagerError {
     fn from(value: Box<dyn Error>) -> Self {
-        ManagerError::CausedByError {
+        ManagerError::UnexpectedError {
             message: value.to_string(),
             cause: value,
         }
