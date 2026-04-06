@@ -6,12 +6,9 @@ use super::entities::todo::{ActiveModel, Model};
 use async_trait::async_trait;
 use migration::OnConflict;
 use sea_orm::{DatabaseConnection, EntityTrait};
-use todolist_core::Result;
 use todolist_core::error::PersistenceError;
 use todolist_core::model::todo::{Todo, TodoId};
-use todolist_core::{
-    persistence::TodoRepository,
-};
+use todolist_core::persistence::TodoRepository;
 
 #[derive(Clone)]
 pub struct PostgresTodoRepository {
@@ -62,7 +59,7 @@ impl TodoRepository for PostgresTodoRepository {
 
         Ok(returned)
     }
-    async fn delete(&self, _todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
+    async fn remove(&self, _todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
         unimplemented!()
     }
 }

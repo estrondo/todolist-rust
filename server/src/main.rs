@@ -6,7 +6,7 @@ use std::net::SocketAddr;
 use todolist_server::{
     api::v1::todo_service_server::TodoServiceServer,
     configuration::{Configuration, Mode},
-    module::{manager::ManagerModule, repository::RepositoryModule, service::ServiceModule},
+    module::{manager::CentreModule, repository::RepositoryModule, service::ServiceModule},
 };
 use tonic::transport::Server;
 
@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log::error!("Unable to create the repository module: {}.", e.to_string())
         })?;
 
-    let manager_module = ManagerModule::new(&configuration, &repository_module)?;
+    let manager_module = CentreModule::new(&configuration, &repository_module)?;
     let service_module = ServiceModule::new(&configuration, &manager_module)?;
 
     let addr: SocketAddr = format!(

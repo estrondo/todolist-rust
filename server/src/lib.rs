@@ -10,8 +10,6 @@ pub mod service;
 
 pub mod module;
 
-pub mod model;
+pub mod auth;
 
 pub(crate) mod convert;
-
-pub mod auth;

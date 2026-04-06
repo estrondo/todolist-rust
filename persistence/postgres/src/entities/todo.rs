@@ -1,6 +1,9 @@
 use sea_orm::entity::prelude::*;
 use time::{Date, Duration, UtcDateTime};
-use todolist_core::{error::PersistenceError, model::todo::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle}};
+use todolist_core::{
+    error::PersistenceError,
+    model::todo::{Todo, TodoContent, TodoDueDate, TodoId, TodoStatus, TodoTitle},
+};
 
 use crate::field::{F, FO};
 
@@ -35,9 +38,9 @@ impl TryFrom<Model> for Todo {
                 TodoDueDate::Period(period_start, period_duration)
             }
             _ => {
-                return Err(PersistenceError::InvalidState {
-                    message: String::from("Invalid due_date."),
-                });
+                return Err(PersistenceError::InvalidState(String::from(
+                    "Invalid due_date.",
+                )));
             }
         };
 
@@ -45,9 +48,9 @@ impl TryFrom<Model> for Todo {
             (FO::Some(F(markdown)), FO::None) => TodoContent::Markdown(markdown),
             (FO::None, FO::Some(F(plain_text))) => TodoContent::Plain(plain_text),
             _ => {
-                return Err(PersistenceError::InvalidState {
-                    message: String::from("Invalid content."),
-                });
+                return Err(PersistenceError::InvalidState(String::from(
+                    "Invalid content.",
+                )));
             }
         };
 

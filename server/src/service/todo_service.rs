@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use todolist_core::error::{ConvertError, ManagerError};
-use todolist_core::manager::TodoManager;
+use todolist_core::centre::todo::TodoCentre;
+use todolist_core::error::ConvertError;
 use todolist_core::model::todo::Todo;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Result, Status, Streaming, async_trait};
@@ -11,16 +11,17 @@ use crate::api::v1::todo::{
     SearchResponse, TodayRequest, TodayResponse, UpsertItemRequest, UpsertItemResponse,
 };
 use crate::api::v1::todo_service_server::TodoService;
+use crate::auth::extract_auth_info;
 use crate::convert::{
-    invalid_request_message, manager_error_to_status, unexpected_internal_conversion_error,
+    centre_error_to_status, invalid_request_message, unexpected_internal_conversion_error,
 };
 
 pub struct DefaultTodoService {
-    manager: Arc<dyn TodoManager>,
+    manager: Arc<dyn TodoCentre>,
 }
 
 impl DefaultTodoService {
-    pub fn new(manager: Arc<dyn TodoManager>) -> Self {
+    pub fn new(manager: Arc<dyn TodoCentre>) -> Self {
         Self { manager }
     }
 }
@@ -48,7 +49,7 @@ impl TodoService for DefaultTodoService {
         &self,
         request: Request<UpsertItemRequest>,
     ) -> Result<Response<UpsertItemResponse>> {
-        //let _auth_info = extract_auth_info(&request)?;
+        let _auth_info = extract_auth_info(&request)?;
         let message = request
             .into_inner()
             .item
@@ -61,12 +62,14 @@ impl TodoService for DefaultTodoService {
             })
             .map_err(invalid_request_message)?;
 
+        let user_id = _auth_info.user_id().map_err(Status::from)?;
+
         let item: Item = self
             .manager
-            .upsert(&todo)
+            .upsert(&todo, &user_id)
             .await
-            .inspect_err(|e: &ManagerError| log::error!("Unable to upsert a Todo: {}", e.message()))
-            .map_err(manager_error_to_status)?
+            .inspect_err(|e| log::error!("Unable to update a Todo: {}", e))
+            .map_err(centre_error_to_status)?
             .try_into()
             .map_err(unexpected_internal_conversion_error)?;
 
