@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+
+#[cfg(test)]
 use mockall::automock;
 
 use crate::{
@@ -14,7 +16,7 @@ use crate::{
 };
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait TodoCentre: Send + Sync {
     async fn upsert(&self, todo: &Todo, user_id: &UserId) -> CentreResult<Todo>;
 

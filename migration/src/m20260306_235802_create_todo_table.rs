@@ -13,12 +13,14 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_uuid(Todo::Id))
                     .col(string(Todo::Title))
-                    .col(integer_null(Todo::Status))
+                    .col(small_integer(Todo::Status))
                     .col(date_null(Todo::DueDateWholeDay))
                     .col(date_time_null(Todo::DueDatePeriodStart))
                     .col(integer_null(Todo::DueDatePeriodDuration))
                     .col(string_null(Todo::ContentMarkdown))
                     .col(string_null(Todo::ContentPlainText))
+                    .col(date_time(Todo::CreatedAt))
+                    .col(date_time(Todo::UpdatedAt))
                     .to_owned(),
             )
             .await
@@ -42,4 +44,6 @@ enum Todo {
     Status,
     ContentMarkdown,
     ContentPlainText,
+    CreatedAt,
+    UpdatedAt,
 }

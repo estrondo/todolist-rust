@@ -5,8 +5,8 @@ edition = "2024"
 
 
 [dependencies]
-migration = { path = "../../migration" }
-todolist-core = { path = "../../core" }
+migration.path = "../../migration"
+todolist-core.path = "../../core"
 async-trait.workspace = true
 sea-orm.workspace = true
 time.workspace = true

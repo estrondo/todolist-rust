@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
+use todolist_core::generator::DefaultTimeGenerator;
 use todolist_persistence_postgres::{PostgresTodoPermissionRepository, PostgresTodoRepository};
 
 use crate::configuration::Configuration;
@@ -12,8 +13,7 @@ pub struct RepositoryModule {
 }
 
 async fn start_migration(con: &DatabaseConnection) -> Result<(), DbErr> {
-    Migrator::up(con, None).await?;
-    Ok(())
+    Migrator::up(con, None).await
 }
 
 impl RepositoryModule {
@@ -38,8 +38,8 @@ impl RepositoryModule {
         })
     }
 
-    pub fn todo_repository(&self) -> PostgresTodoRepository {
-        PostgresTodoRepository::new(self.connection.clone())
+    pub fn todo_repository(&self) -> PostgresTodoRepository<DefaultTimeGenerator> {
+        PostgresTodoRepository::new(self.connection.clone(), DefaultTimeGenerator::default())
     }
 
     pub fn todo_permission_repository(&self) -> PostgresTodoPermissionRepository {

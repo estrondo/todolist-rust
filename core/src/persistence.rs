@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+
+#[cfg(test)]
 use mockall::automock;
 
 use crate::error::PersistenceError;
@@ -9,7 +11,7 @@ use crate::model::user::{User, UserId};
 pub type PersistenceResult<T> = Result<T, PersistenceError>;
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait TodoRepository: Send + Sync {
     async fn get(&self, id: &TodoId) -> PersistenceResult<Option<Todo>>;
     async fn upsert(&self, todo: &Todo) -> PersistenceResult<Todo>;
@@ -17,7 +19,7 @@ pub trait TodoRepository: Send + Sync {
 }
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait TodoPermissionRepository: Send + Sync {
     async fn get<'a>(
         &self,
@@ -27,7 +29,7 @@ pub trait TodoPermissionRepository: Send + Sync {
 }
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait AuthRepository: Send + Sync {
     async fn search(&self, id: &UserId) -> PersistenceResult<Option<User>>;
 }

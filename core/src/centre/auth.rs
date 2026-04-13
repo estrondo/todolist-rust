@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+
+#[cfg(test)]
 use mockall::automock;
 
 use crate::{
@@ -10,7 +12,7 @@ use crate::{
 pub type AuthCentreResult<T> = Result<T, AuthError>;
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait AuthCentre: Send + Sync {
     async fn identify(&self, token: &UserId) -> AuthCentreResult<Option<User>>;
 }

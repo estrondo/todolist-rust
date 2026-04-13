@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+
+#[cfg(test)]
 use mockall::automock;
 
 use crate::{
@@ -8,7 +10,7 @@ use crate::{
 };
 
 #[async_trait]
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait PermissionCentre: Send + Sync {
     async fn get_todo_permission(
         &self,

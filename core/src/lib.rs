@@ -1,5 +1,8 @@
 pub mod error;
+
 pub mod model;
+
+pub mod generator;
 
 pub mod persistence;
 

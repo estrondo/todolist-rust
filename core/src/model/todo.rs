@@ -32,6 +32,33 @@ pub enum TodoStatus {
     Done = 4,
 }
 
+impl TryFrom<u8> for TodoStatus {
+    type Error = u8;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(TodoStatus::Unspecified),
+            1 => Ok(TodoStatus::Active),
+            2 => Ok(TodoStatus::Postponed),
+            3 => Ok(TodoStatus::Cancelled),
+            4 => Ok(TodoStatus::Done),
+            _ => Err(value),
+        }
+    }
+}
+
+impl From<&TodoStatus> for u8 {
+    fn from(value: &TodoStatus) -> Self {
+        match value {
+            TodoStatus::Unspecified => 0,
+            TodoStatus::Active => 1,
+            TodoStatus::Postponed => 2,
+            TodoStatus::Cancelled => 3,
+            TodoStatus::Done => 4,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum TodoContent {
     Markdown(String),
