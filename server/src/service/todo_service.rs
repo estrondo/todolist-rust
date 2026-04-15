@@ -49,7 +49,7 @@ impl TodoService for DefaultTodoService {
         &self,
         request: Request<UpsertItemRequest>,
     ) -> Result<Response<UpsertItemResponse>> {
-        let _auth_info = extract_auth_info(&request)?;
+        let auth_info = extract_auth_info(&request)?;
         let message = request
             .into_inner()
             .item
@@ -62,7 +62,7 @@ impl TodoService for DefaultTodoService {
             })
             .map_err(invalid_request_message)?;
 
-        let user_id = _auth_info.user_id().map_err(Status::from)?;
+        let user_id = auth_info.user_id().map_err(Status::from)?;
 
         let item: Item = self
             .manager

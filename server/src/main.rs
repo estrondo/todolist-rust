@@ -5,6 +5,7 @@ use simple_logger::SimpleLogger;
 use std::net::SocketAddr;
 use todolist_server::{
     api::v1::todo_service_server::TodoServiceServer,
+    auth::prepare_auth_info,
     configuration::{Configuration, Mode},
     module::{manager::CentreModule, repository::RepositoryModule, service::ServiceModule},
 };
@@ -53,7 +54,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::info!("Starting the server at {}.", addr);
 
     Server::builder()
-        .add_service(TodoServiceServer::new(service_module.todo_service()))
+        .add_service(TodoServiceServer::with_interceptor(
+            service_module.todo_service(),
+            prepare_auth_info,
+        ))
         .serve(addr)
         .await?;
 

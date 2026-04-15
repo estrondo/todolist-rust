@@ -1,36 +1,28 @@
-use std::{error::Error, io::Read};
+use std::error::Error;
 
-use prost::bytes::Buf;
-use sea_orm::prelude::Uuid;
+use prost::bytes::Bytes;
 use todolist_core::model::user::UserId;
 use tonic::{Request, Status};
-
-#[derive(Debug, Clone)]
-pub struct AuthToken(pub [u8; 2], pub Vec<u8>);
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct AuthInfo {
-    _token: AuthToken,
+    token: Bytes,
 }
 
 impl AuthInfo {
     pub fn user_id(&self) -> Result<UserId, AuthError> {
-        let data = &self._token.0;
-        let mut buf = [0u8; 16];
-        let x = data.reader().read(&mut buf).map_err(|cause| {
-            AuthError::InvalidToken(
-                "Unable to extract UserId from Token.".to_owned(),
-                Some(Box::new(cause)),
-            )
-        })?;
+        let _token = &self.token;
 
-        if x == 16 {
-            Ok(UserId(Uuid::from_bytes(buf)))
-        } else {
-            Err(AuthError::InvalidToken(
-                "Token is too short.".to_owned(),
-                None,
-            ))
+        match Uuid::from_slice(_token) {
+            Ok(uuid) => Ok(UserId(uuid)),
+            Err(cause) => {
+                log::error!("Invalid UUID token: {cause}");
+                Err(AuthError::InvalidToken(
+                    "Invalid token!".into(),
+                    Some(Box::new(cause)),
+                ))
+            }
         }
     }
 }
@@ -48,11 +40,32 @@ impl From<AuthError> for Status {
     }
 }
 
-pub fn extract_auth_info<A>(request: &Request<A>) -> Result<AuthInfo, Status> {
+pub fn prepare_auth_info<A>(mut request: Request<A>) -> Result<Request<A>, Status> {
+    let token = request.metadata().get_bin("authorisation-bin");
+    match token {
+        Some(value) => match value.to_bytes() {
+            Ok(token) => {
+                log::debug!("Authorisation token identified");
+                request.extensions_mut().insert(AuthInfo { token });
+                Ok(request)
+            }
+            Err(cause) => {
+                log::warn!("Malformed authorisation metadata: {}", cause);
+                Err(Status::unauthenticated("No authentication"))
+            }
+        },
+        None => {
+            log::debug!("No authorisation metadata");
+            Ok(request)
+        }
+    }
+}
+
+pub(crate) fn extract_auth_info<A>(request: &Request<A>) -> Result<AuthInfo, Status> {
     let auth_info: &AuthInfo = request
         .extensions()
         .get()
-        .ok_or(Status::unauthenticated("Unauthenticated request!"))?;
+        .ok_or(Status::unauthenticated("Unauthorised request"))?;
 
-    Result::Ok(auth_info.clone())
+    Result::Ok(auth_info.to_owned())
 }

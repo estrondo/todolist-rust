@@ -1,0 +1,21 @@
+#!/bin/sh
+
+COMMAND="grpcui"
+INCLUDE_PATH="../grpc-specification"
+
+GRPC_HOST="localhost"
+GRPC_PORT="8080"
+
+UI_PORT=9000
+
+PROTO="--proto"
+PROTO_PREFIX_V1="$PROTO todolist/v1"
+
+TODO_V1="$PROTO_PREFIX_V1/todo.proto"
+
+if ! command -v $COMMAND &>/dev/null; then
+    echo "You need $COMMAND installed" >&2
+    exit 1
+fi
+
+eval "$COMMAND -plaintext -port $UI_PORT -import-path $INCLUDE_PATH $TODO_V1 $GRPC_HOST:$GRPC_PORT"
