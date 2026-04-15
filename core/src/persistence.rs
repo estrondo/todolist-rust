@@ -21,10 +21,10 @@ pub trait TodoRepository: Send + Sync {
 #[async_trait]
 #[cfg_attr(test, automock)]
 pub trait TodoPermissionRepository: Send + Sync {
-    async fn get<'a>(
+    async fn get(
         &self,
-        todo_id: &'a TodoId,
-        user_id: &'a UserId,
+        todo_id: &TodoId,
+        user_id: &UserId,
     ) -> PersistenceResult<Option<TodoPermission>>;
 }
 

@@ -17,10 +17,10 @@ impl PostgresTodoPermissionRepository {
 
 #[async_trait]
 impl TodoPermissionRepository for PostgresTodoPermissionRepository {
-    async fn get<'a>(
+    async fn get(
         &self,
-        _todo_id: &'a TodoId,
-        _user_id: &'a UserId,
+        _todo_id: &TodoId,
+        _user_id: &UserId,
     ) -> PersistenceResult<Option<TodoPermission>> {
         todo!()
     }
