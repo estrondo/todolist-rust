@@ -33,9 +33,9 @@ impl TodoPermission {
 #[repr(u8)]
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TodoPermissionRole {
-    Owner,
-    View,
-    Edit,
+    Owner = 0,
+    View = 1,
+    Edit = 2,
 }
 
 impl TodoPermissionRole {
@@ -44,6 +44,29 @@ impl TodoPermissionRole {
             TodoPermissionRole::Owner => true,
             TodoPermissionRole::Edit => true,
             TodoPermissionRole::View => false,
+        }
+    }
+}
+
+impl TryFrom<u8> for TodoPermissionRole {
+    type Error = u8;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(TodoPermissionRole::Owner),
+            1 => Ok(TodoPermissionRole::View),
+            2 => Ok(TodoPermissionRole::Edit),
+            _ => Err(value),
+        }
+    }
+}
+
+impl From<&TodoPermissionRole> for u8 {
+    fn from(value: &TodoPermissionRole) -> Self {
+        match value {
+            TodoPermissionRole::Owner => 0,
+            TodoPermissionRole::View => 1,
+            TodoPermissionRole::Edit => 2,
         }
     }
 }

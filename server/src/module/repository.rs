@@ -42,7 +42,12 @@ impl RepositoryModule {
         PostgresTodoRepository::new(self.connection.clone(), DefaultTimeGenerator::default())
     }
 
-    pub fn todo_permission_repository(&self) -> PostgresTodoPermissionRepository {
-        PostgresTodoPermissionRepository::new(self.connection.clone())
+    pub fn todo_permission_repository(
+        &self,
+    ) -> PostgresTodoPermissionRepository<DefaultTimeGenerator> {
+        PostgresTodoPermissionRepository::new(
+            self.connection.clone(),
+            DefaultTimeGenerator::default(),
+        )
     }
 }

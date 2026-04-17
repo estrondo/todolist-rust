@@ -34,7 +34,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum Todo {
+pub enum Todo {
     Table,
     Id,
     Title,

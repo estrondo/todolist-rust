@@ -1,7 +1,12 @@
-use time::UtcDateTime;
+use time::{PrimitiveDateTime, UtcDateTime};
 
-pub trait TimeGenerator: Send + Sync {
+pub trait TimeGenerator: Send + Sync + Clone {
     fn new_utc_date_time(&self) -> UtcDateTime;
+
+    fn new_utc_primitive_date_time(&self) -> PrimitiveDateTime {
+        let date_time = self.new_utc_date_time();
+        PrimitiveDateTime::new(date_time.date(), date_time.time())
+    }
 }
 
 /// Default implementation of [`TimeGenerator`] that generates UTC timestamps.

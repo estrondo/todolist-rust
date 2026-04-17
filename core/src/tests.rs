@@ -1,4 +1,5 @@
 pub mod todo_centre;
+pub mod todo_permission;
 
 use std::fmt::Debug;
 

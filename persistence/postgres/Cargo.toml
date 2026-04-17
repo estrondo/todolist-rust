@@ -19,3 +19,4 @@ rand.workspace = true
 rstest.workspace = true
 testcontainers-modules = { workspace = true, features = ["postgres"] }
 tokio.workspace = true
+uuid.workspace = true

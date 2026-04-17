@@ -26,6 +26,14 @@ pub trait TodoPermissionRepository: Send + Sync {
         todo_id: &TodoId,
         user_id: &UserId,
     ) -> PersistenceResult<Option<TodoPermission>>;
+
+    async fn upsert(&self, todo_permission: &TodoPermission) -> PersistenceResult<TodoPermission>;
+
+    async fn remove(
+        &self,
+        todo_id: &TodoId,
+        user_id: &UserId,
+    ) -> PersistenceResult<Option<TodoPermission>>;
 }
 
 #[async_trait]

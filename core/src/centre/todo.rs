@@ -45,7 +45,7 @@ where
         let inserted = self.todo.upsert(todo).await?;
         match self
             .permission
-            .insert_todo_permission(TodoPermission::new_owner(
+            .insert_todo_permission(&TodoPermission::new_owner(
                 todo.id.to_owned(),
                 user_id.to_owned(),
             ))
