@@ -5,7 +5,7 @@ use todolist_core::{
     persistence::TodoPermissionRepository,
 };
 
-use crate::{PostgresTodoPermissionRepository, tests::containers::PostgresContainer};
+use crate::{PostgresTodoPermissionRepository, tests::container::PostgresContainer};
 
 async fn create_repository<T: TimeGenerator>(
     generator: T,

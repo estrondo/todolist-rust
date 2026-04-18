@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 async-trait.workspace = true
 checkito.workspace = true
+futures.workspace = true
 geo.workspace = true
 log.workspace = true
 mockall.workspace = true

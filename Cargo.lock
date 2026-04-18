@@ -4245,6 +4245,7 @@ dependencies = [
  "async-trait",
  "checkito",
  "checkito_ext",
+ "futures",
  "geo",
  "log",
  "mockall",

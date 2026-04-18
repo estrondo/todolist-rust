@@ -8,13 +8,13 @@ edition = "2024"
 migration.path = "../../migration"
 todolist-core.path = "../../core"
 async-trait.workspace = true
+futures.workspace = true
 sea-orm.workspace = true
 time.workspace = true
 
 [dev-dependencies]
 checkito_ext.path = "../../ext/checkito"
 checkito.workspace = true
-futures.workspace = true
 rand.workspace = true
 rstest.workspace = true
 testcontainers-modules = { workspace = true, features = ["postgres"] }

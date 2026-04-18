@@ -1,6 +1,7 @@
 use async_trait::async_trait;
+use futures::{Stream, StreamExt, stream::once};
 use migration::OnConflict;
-use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait};
+use sea_orm::{ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use todolist_core::{
     generator::TimeGenerator,
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
@@ -62,6 +63,30 @@ impl<T: TimeGenerator> TodoPermissionRepository for PostgresTodoPermissionReposi
             .map_err(db_err_to_persistence_error)?;
 
         Ok(model.try_into()?)
+    }
+
+    async fn search_permissions<'db>(
+        &'db self,
+        todo_id: &TodoId,
+    ) -> PersistenceResult<
+        Box<dyn Stream<Item = PersistenceResult<TodoPermission>> + 'db + Send + Unpin>,
+    > {
+        let stream = Entity::find()
+            .filter(Column::TodoId.eq(todo_id.0))
+            .stream(&self.connection)
+            .await
+            .map_err(db_err_to_persistence_error)?
+            .flat_map(|result| {
+                let result = match result {
+                    Ok(model) => TodoPermission::try_from(model),
+                    Err(cause) => Err(db_err_to_persistence_error(cause)),
+                };
+
+                once(async { result })
+            })
+            .boxed();
+
+        Ok(Box::new(stream))
     }
 
     async fn remove(

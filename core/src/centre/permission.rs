@@ -1,29 +1,28 @@
 use async_trait::async_trait;
 
+use futures::StreamExt;
 #[cfg(test)]
-use mockall::automock;
+use mockall::{automock, predicate::eq};
 
+#[cfg(test)]
+use crate::model::{permission::TodoPermissionRole, todo::Todo};
 use crate::{
     centre::{CentreError, CentreResult},
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
     persistence::TodoPermissionRepository,
 };
 
-#[async_trait]
 #[cfg_attr(test, automock)]
+#[async_trait]
 pub trait PermissionCentre: Send + Sync {
-    async fn get_todo_permission(
-        &self,
-        todo_id: &TodoId,
-        user_id: &UserId,
-    ) -> CentreResult<Option<TodoPermission>>;
+    async fn has_owner(&self, todo_id: &TodoId) -> CentreResult<bool>;
 
-    async fn insert_todo_permission(
-        &self,
-        todo_permission: &TodoPermission,
-    ) -> CentreResult<TodoPermission>;
+    async fn get(&self, todo_id: &TodoId, user_id: &UserId)
+    -> CentreResult<Option<TodoPermission>>;
 
-    async fn remove_todo_permission(
+    async fn upsert(&self, todo_permission: &TodoPermission) -> CentreResult<TodoPermission>;
+
+    async fn remove(
         &self,
         todo_permission: &TodoPermission,
     ) -> CentreResult<Option<TodoPermission>>;
@@ -31,6 +30,23 @@ pub trait PermissionCentre: Send + Sync {
 
 pub struct DefaultPermissionCentre<P> {
     permission: P,
+}
+
+#[cfg(test)]
+impl MockPermissionCentre {
+    pub fn once_success_get(&mut self, todo: &Todo, user_id: &UserId, role: TodoPermissionRole) {
+        self.expect_get()
+            .once()
+            .with(eq(todo.id.to_owned()), eq(user_id.to_owned()))
+            .returning(move |_a, _b| {
+                let role = role.to_owned();
+                CentreResult::Ok(Some(TodoPermission {
+                    todo_id: _a.to_owned(),
+                    user_id: _b.to_owned(),
+                    role,
+                }))
+            });
+    }
 }
 
 impl<P> DefaultPermissionCentre<P> {
@@ -44,7 +60,7 @@ impl<P> PermissionCentre for DefaultPermissionCentre<P>
 where
     P: TodoPermissionRepository,
 {
-    async fn get_todo_permission(
+    async fn get(
         &self,
         todo_id: &TodoId,
         user_id: &UserId,
@@ -62,10 +78,31 @@ where
         }
     }
 
-    async fn insert_todo_permission(
-        &self,
-        todo_permission: &TodoPermission,
-    ) -> CentreResult<TodoPermission> {
+    async fn has_owner(&self, todo_id: &TodoId) -> CentreResult<bool> {
+        // TODO: I just wanted to make something with Stream pretty early (Actually I forgot what I needed and used stream with no brain).
+        let stream = self.permission.search_permissions(todo_id).await;
+
+        match stream {
+            Ok(mut stream) => {
+                log::debug!(todo:?=todo_id;"Reading permission");
+
+                while let Some(result) = stream.next().await {
+                    match result {
+                        Ok(_) => return Ok(true),
+                        Err(_) => {}
+                    }
+                }
+
+                CentreResult::Ok(false)
+            }
+            Err(cause) => {
+                log::warn!(todo:?=todo_id;"Unable to search the permission");
+                CentreResult::Err(CentreError::from(cause))
+            }
+        }
+    }
+
+    async fn upsert(&self, todo_permission: &TodoPermission) -> CentreResult<TodoPermission> {
         log::debug!(todo:?=todo_permission.todo_id,user:?=todo_permission.user_id;"Inserting a new todo permission");
         match self.permission.upsert(&todo_permission).await {
             Ok(result) => CentreResult::Ok(result),
@@ -79,7 +116,7 @@ where
         }
     }
 
-    async fn remove_todo_permission(
+    async fn remove(
         &self,
         todo_permission: &TodoPermission,
     ) -> CentreResult<Option<TodoPermission>> {
