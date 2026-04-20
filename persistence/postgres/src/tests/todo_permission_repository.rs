@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use checkito_ext::async_check;
+use futures::StreamExt;
 use todolist_core::{
     generator::{DefaultTimeGenerator, TimeGenerator},
-    model::permission::TodoPermission,
+    model::{permission::TodoPermission, todo::TodoId},
     persistence::TodoPermissionRepository,
 };
 
@@ -10,7 +13,10 @@ use crate::{PostgresTodoPermissionRepository, tests::container::PostgresContaine
 async fn create_repository<T: TimeGenerator>(
     generator: T,
 ) -> (PostgresContainer, PostgresTodoPermissionRepository<T>) {
-    let container = PostgresContainer::new().await.unwrap();
+    let container = PostgresContainer::new()
+        .await
+        .expect("Unable to create the container");
+
     let permission_repository =
         PostgresTodoPermissionRepository::new(container.connection().clone(), generator.to_owned());
 
@@ -116,4 +122,43 @@ async fn check_remove() {
         }
     })
     .await;
+}
+
+#[tokio::test]
+async fn check_select_by_todo_id() {
+    let (_c, repository) = create_repository(DefaultTimeGenerator::default()).await;
+
+    async_check(|(todo_id, samples): (TodoId, [TodoPermission; 5])| {
+        let repository = repository.to_owned();
+        async move {
+            let mut hash_map = HashMap::new();
+            for mut x in samples {
+                x.todo_id = todo_id.to_owned();
+                repository.upsert(&x).await.expect("Unable to upsert");
+                hash_map.insert(x.user_id.0, x);
+            }
+
+            let mut stream = repository
+                .search_permissions(&todo_id)
+                .await
+                .expect("Unable to search permissions");
+
+            while let Some(stored) = stream.next().await {
+                match stored {
+                    Ok(todo_permission) => {
+                        hash_map.get(&todo_permission.user_id.0).expect(&format!(
+                            "Unable to find the todo for user {:?}",
+                            &todo_permission.user_id
+                        ));
+                    }
+                    Err(cause) => {
+                        panic!("{cause:?}");
+                    }
+                }
+            }
+        }
+    })
+    .await;
+
+    ()
 }
