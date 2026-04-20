@@ -1,19 +1,21 @@
 use config::Config;
 use core::error::Error;
 use log;
-use simple_logger::SimpleLogger;
+use simple_logger::{self, SimpleLogger};
 use std::net::SocketAddr;
 use todolist_server::{
     api::v1::todo_service_server::TodoServiceServer,
-    auth::prepare_auth_info,
     configuration::{Configuration, Mode},
-    module::{manager::CentreModule, repository::RepositoryModule, service::ServiceModule},
+    module::{
+        manager::CentreModule, repository::RepositoryModule, security::SecurityModule,
+        service::ServiceModule,
+    },
 };
 use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    SimpleLogger::new().init()?;
+    SimpleLogger::new().env().init().unwrap();
 
     log::info!("Starting Estrondo's TODOList Server");
 
@@ -40,6 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log::error!("Unable to create the repository module: {}.", e.to_string())
         })?;
 
+    let security_module = SecurityModule::new(&configuration).await?;
     let centre_module = CentreModule::new(&configuration, &repository_module)?;
     let service_module = ServiceModule::new(&configuration, &centre_module)?;
 
@@ -50,11 +53,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .parse()?;
 
     log::info!("Starting the server at {}.", addr);
+    let security_interceptor = security_module.create_auth_info_interceptor();
 
     Server::builder()
         .add_service(TodoServiceServer::with_interceptor(
             service_module.todo_service(),
-            prepare_auth_info,
+            security_interceptor.to_owned(),
         ))
         .serve(addr)
         .await?;

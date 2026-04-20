@@ -1,9 +1,12 @@
 use std::error::Error;
 
-use prost::bytes::Bytes;
+use prost::bytes::{Buf, Bytes};
 use todolist_core::model::user::UserId;
 use tonic::{Request, Status};
 use uuid::Uuid;
+
+#[cfg(test)]
+use mockall::automock;
 
 #[derive(Debug, Clone)]
 pub struct AuthInfo {
@@ -11,15 +14,17 @@ pub struct AuthInfo {
 }
 
 impl AuthInfo {
-    pub fn user_id(&self) -> Result<UserId, AuthError> {
-        let _token = &self.token;
-
-        match Uuid::from_slice(_token) {
-            Ok(uuid) => Ok(UserId(uuid)),
+    pub fn user_id(&mut self) -> Result<UserId, AuthError> {
+        let mut token = self.token.to_owned();
+        match token.try_get_u128() {
+            Ok(bytes) => Ok(UserId(Uuid::from_u128(bytes))),
             Err(cause) => {
-                log::error!("Invalid UUID token: {cause}");
+                log::warn!(
+                    "Unable to read the UserId from authorisation token: {}",
+                    &cause
+                );
                 Err(AuthError::InvalidToken(
-                    "Invalid token!".into(),
+                    "UserId reading failure".into(),
                     Some(Box::new(cause)),
                 ))
             }
@@ -40,27 +45,6 @@ impl From<AuthError> for Status {
     }
 }
 
-pub fn prepare_auth_info<A>(mut request: Request<A>) -> Result<Request<A>, Status> {
-    let token = request.metadata().get_bin("authorisation-bin");
-    match token {
-        Some(value) => match value.to_bytes() {
-            Ok(token) => {
-                log::debug!("Authorisation token identified");
-                request.extensions_mut().insert(AuthInfo { token });
-                Ok(request)
-            }
-            Err(cause) => {
-                log::warn!("Malformed authorisation metadata: {}", cause);
-                Err(Status::unauthenticated("No authentication"))
-            }
-        },
-        None => {
-            log::debug!("No authorisation metadata");
-            Ok(request)
-        }
-    }
-}
-
 pub(crate) fn extract_auth_info<A>(request: &Request<A>) -> Result<AuthInfo, Status> {
     let auth_info: &AuthInfo = request
         .extensions()
@@ -68,4 +52,45 @@ pub(crate) fn extract_auth_info<A>(request: &Request<A>) -> Result<AuthInfo, Sta
         .ok_or(Status::unauthenticated("Unauthorised request"))?;
 
     Result::Ok(auth_info.to_owned())
+}
+
+#[cfg_attr(test, automock)]
+pub(crate) trait TokenReader {
+    fn read(&self, request: Request<()>) -> Result<Request<()>, Status>;
+}
+
+#[derive(Debug, Clone, Default)]
+pub(crate) struct DefaultTokenReader {}
+
+impl DefaultTokenReader {
+    const AUTHORISATION_METADATA: &str = "authorisation-bin";
+}
+
+impl TokenReader for DefaultTokenReader {
+    fn read(&self, mut request: Request<()>) -> Result<Request<()>, Status> {
+        let metadata = request
+            .metadata()
+            .get_bin(DefaultTokenReader::AUTHORISATION_METADATA);
+
+        match metadata {
+            Some(metadata) => {
+                let token = metadata.to_bytes().map_err(|error| {
+                    log::warn!(
+                        "Malformed {} metadata: {}",
+                        DefaultTokenReader::AUTHORISATION_METADATA,
+                        &error
+                    );
+                    Status::invalid_argument(format!(
+                        "Invalid {} metadata",
+                        DefaultTokenReader::AUTHORISATION_METADATA
+                    ))
+                })?;
+
+                request.extensions_mut().insert(AuthInfo { token });
+
+                Ok(request)
+            }
+            None => Ok(request),
+        }
+    }
 }

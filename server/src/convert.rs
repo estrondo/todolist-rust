@@ -1,10 +1,18 @@
 use time::{Date, Duration, Month, Time, UtcDateTime};
 use todolist_core::{
-    centre::CentreError, error::ConvertError, model::todo::{TodoContent, TodoDueDate}
+    centre::CentreError,
+    error::ConvertError,
+    model::todo::{TodoContent, TodoDueDate},
 };
 use tonic::Status;
 
-use crate::api::v1::todo::{Content, DueDate, content::Content as ContentEnum, due_date::When};
+use crate::api::v1::{
+    Date as TodoDate, Period,
+    todo::{
+        Content, DueDate, MarkdownContent, PlainContent, content::Content as ContentEnum,
+        due_date::When,
+    },
+};
 
 pub(crate) fn invalid_request_message(error: ConvertError) -> Status {
     Status::invalid_argument(error.message())
@@ -76,15 +84,40 @@ impl TryFrom<DueDate> for TodoDueDate {
 impl TryFrom<TodoDueDate> for DueDate {
     type Error = ConvertError;
 
-    fn try_from(_value: TodoDueDate) -> Result<Self, Self::Error> {
-        todo!()
+    fn try_from(value: TodoDueDate) -> Result<Self, Self::Error> {
+        match value {
+            TodoDueDate::WholeDay(date) => Ok(DueDate {
+                when: Some(When::WholeDay(TodoDate {
+                    year: date.year() as u32,
+                    month: date.month() as u32,
+                    day: date.day() as u32,
+                })),
+            }),
+            TodoDueDate::Period(utc_date_time, duration) => Ok(DueDate {
+                when: Some(When::Period(Period {
+                    year: utc_date_time.year() as u32,
+                    month: utc_date_time.month() as u32,
+                    day: utc_date_time.day() as u32,
+                    hour: utc_date_time.hour() as u32,
+                    minute: utc_date_time.minute() as u32,
+                    minutes: duration.whole_seconds() as u32,
+                })),
+            }),
+        }
     }
 }
 
 impl TryFrom<TodoContent> for Content {
     type Error = ConvertError;
 
-    fn try_from(_value: TodoContent) -> Result<Self, Self::Error> {
-        todo!()
+    fn try_from(value: TodoContent) -> Result<Self, Self::Error> {
+        match value {
+            TodoContent::Markdown(content) => Ok(Content {
+                content: Some(ContentEnum::Markdown(MarkdownContent { content })),
+            }),
+            TodoContent::Plain(content) => Ok(Content {
+                content: Some(ContentEnum::Plain(PlainContent { content })),
+            }),
+        }
     }
 }

@@ -49,7 +49,7 @@ impl TodoService for DefaultTodoService {
         &self,
         request: Request<UpsertItemRequest>,
     ) -> Result<Response<UpsertItemResponse>> {
-        let auth_info = extract_auth_info(&request)?;
+        let mut auth_info = extract_auth_info(&request)?;
         let message = request
             .into_inner()
             .item

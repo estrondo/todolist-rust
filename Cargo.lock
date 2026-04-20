@@ -4282,6 +4282,7 @@ dependencies = [
  "config",
  "log",
  "migration",
+ "mockall",
  "o2o",
  "prost",
  "sea-orm",

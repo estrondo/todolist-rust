@@ -7,20 +7,23 @@ edition = "2024"
 migration.path = "../migration"
 todolist-core.path = "../core"
 todolist-persistence-postgres.path = "../persistence/postgres"
-async-trait.workspace=true
-config.workspace=true
-log.workspace=true
-o2o.workspace=true
-prost.workspace=true
-sea-orm.workspace=true
-serde.workspace=true
-simple_logger.workspace=true
-time.workspace=true
-tokio-stream.workspace=true
-tokio.workspace=true
-tonic-prost.workspace=true
-tonic.workspace=true
+async-trait.workspace = true
+config.workspace = true
+log.workspace = true
+o2o.workspace = true
+prost.workspace = true
+sea-orm.workspace = true
+serde.workspace = true
+simple_logger.workspace = true
+time.workspace = true
+tokio-stream.workspace = true
+tokio.workspace = true
+tonic-prost.workspace = true
+tonic.workspace = true
 uuid.workspace = true
+
+[dev-dependencies]
+mockall.workspace = true
 
 [build-dependencies]
 tonic-prost-build.workspace = true

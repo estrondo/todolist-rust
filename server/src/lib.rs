@@ -4,12 +4,8 @@ pub mod api {
     }
 }
 
-pub mod configuration;
-
-pub mod service;
-
-pub mod module;
-
 pub mod auth;
-
+pub mod configuration;
 pub(crate) mod convert;
+pub mod module;
+pub mod service;
