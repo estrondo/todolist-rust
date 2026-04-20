@@ -15,7 +15,7 @@ use tonic::transport::Server;
 async fn main() -> Result<(), Box<dyn Error>> {
     SimpleLogger::new().init()?;
 
-    log::info!("Preparing to initialise the wonderful TODOList Server.");
+    log::info!("Starting Estrondo's TODOList Server");
 
     let (configuration, mode) = Configuration::default();
 
@@ -34,16 +34,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()?
         .try_deserialize()?;
 
-    log::info!("Preparing the server...");
-
     let repository_module = RepositoryModule::new(&configuration)
         .await
         .inspect_err(|e| {
             log::error!("Unable to create the repository module: {}.", e.to_string())
         })?;
 
-    let manager_module = CentreModule::new(&configuration, &repository_module)?;
-    let service_module = ServiceModule::new(&configuration, &manager_module)?;
+    let centre_module = CentreModule::new(&configuration, &repository_module)?;
+    let service_module = ServiceModule::new(&configuration, &centre_module)?;
 
     let addr: SocketAddr = format!(
         "{}:{}",

@@ -37,7 +37,7 @@ impl Configuration {
     pub fn default() -> (Configuration, Mode) {
         let args: Vec<String> = env::args().collect();
         match args.get(1).map(|x| x.to_lowercase()) {
-            Some(value) => match value.as_ref() {
+            Some(value) => match value.as_str() {
                 "dev" => (Self::dev(), Mode::Dev),
                 "stg" => (Self::stg(), Mode::Stg),
                 "prd" => (Self::prd(), Mode::Prd),
