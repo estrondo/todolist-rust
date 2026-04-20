@@ -9,7 +9,7 @@ use crate::model::{permission::TodoPermissionRole, todo::Todo};
 use crate::{
     centre::{CentreError, CentreResult},
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
-    repositories::TodoPermissionRepository,
+    repositories::permission::TodoPermissionRepository,
 };
 
 #[cfg_attr(test, automock)]
@@ -80,7 +80,7 @@ where
 
     async fn has_owner(&self, todo_id: &TodoId) -> CentreResult<bool> {
         // TODO: I just wanted to make something with Stream pretty early (Actually I forgot what I needed and used stream with no brain).
-        let stream = self.permission.search_permissions(todo_id).await;
+        let stream = self.permission.search_permission_by_todo_id(todo_id).await;
 
         match stream {
             Ok(mut stream) => {

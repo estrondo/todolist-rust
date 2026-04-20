@@ -5,7 +5,7 @@ use futures::StreamExt;
 use todolist_core::{
     generator::{DefaultTimeGenerator, TimeGenerator},
     model::{permission::TodoPermission, todo::TodoId},
-    repositories::TodoPermissionRepository,
+    repositories::permission::TodoPermissionRepository,
 };
 
 use crate::{PostgresTodoPermissionRepository, tests::container::PostgresContainer};
@@ -139,7 +139,7 @@ async fn check_select_by_todo_id() {
             }
 
             let mut stream = repository
-                .search_permissions(&todo_id)
+                .search_permission_by_todo_id(&todo_id)
                 .await
                 .expect("Unable to search permissions");
 

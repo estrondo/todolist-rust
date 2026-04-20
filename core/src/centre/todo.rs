@@ -12,7 +12,7 @@ use crate::{
         todo::{Todo, TodoId},
         user::UserId,
     },
-    repositories::TodoRepository,
+    repositories::todo::TodoRepository,
 };
 
 #[async_trait]

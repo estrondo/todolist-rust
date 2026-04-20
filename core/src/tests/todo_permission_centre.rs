@@ -4,7 +4,7 @@ use mockall::predicate::eq;
 use crate::{
     centre::permission::{DefaultPermissionCentre, PermissionCentre},
     model::permission::TodoPermission,
-    repositories::MockTodoPermissionRepository,
+    repositories::permission::MockTodoPermissionRepository,
 };
 
 #[tokio::test]

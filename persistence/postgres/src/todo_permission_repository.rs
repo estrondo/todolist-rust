@@ -5,7 +5,7 @@ use sea_orm::{ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, Qu
 use todolist_core::{
     generator::TimeGenerator,
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
-    repositories::{PersistenceResult, TodoPermissionRepository},
+    repositories::{PersistenceResult, permission::TodoPermissionRepository},
 };
 
 use crate::{
@@ -65,7 +65,7 @@ impl<T: TimeGenerator> TodoPermissionRepository for PostgresTodoPermissionReposi
         Ok(model.try_into()?)
     }
 
-    async fn search_permissions<'db>(
+    async fn search_permission_by_todo_id<'db>(
         &'db self,
         todo_id: &TodoId,
     ) -> PersistenceResult<
