@@ -5,7 +5,7 @@ use futures::StreamExt;
 use todolist_core::{
     generator::{DefaultTimeGenerator, TimeGenerator},
     model::{permission::TodoPermission, todo::TodoId},
-    persistence::TodoPermissionRepository,
+    repositories::TodoPermissionRepository,
 };
 
 use crate::{PostgresTodoPermissionRepository, tests::container::PostgresContainer};

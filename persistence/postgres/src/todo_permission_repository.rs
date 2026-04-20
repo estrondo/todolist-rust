@@ -5,7 +5,7 @@ use sea_orm::{ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, Qu
 use todolist_core::{
     generator::TimeGenerator,
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
-    persistence::{PersistenceResult, TodoPermissionRepository},
+    repositories::{PersistenceResult, TodoPermissionRepository},
 };
 
 use crate::{

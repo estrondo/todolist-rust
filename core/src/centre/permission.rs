@@ -9,7 +9,7 @@ use crate::model::{permission::TodoPermissionRole, todo::Todo};
 use crate::{
     centre::{CentreError, CentreResult},
     model::{permission::TodoPermission, todo::TodoId, user::UserId},
-    persistence::TodoPermissionRepository,
+    repositories::TodoPermissionRepository,
 };
 
 #[cfg_attr(test, automock)]

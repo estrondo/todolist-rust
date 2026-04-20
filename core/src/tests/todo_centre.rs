@@ -15,7 +15,7 @@ use crate::{
         todo::Todo,
         user::UserId,
     },
-    persistence::{MockTodoRepository, PersistenceResult},
+    repositories::{MockTodoRepository, PersistenceResult},
     tests::assert_with_debug,
 };
 

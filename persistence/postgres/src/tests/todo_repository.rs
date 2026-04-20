@@ -2,7 +2,7 @@ use checkito_ext::async_check;
 use todolist_core::{
     generator::{DefaultTimeGenerator, TimeGenerator},
     model::todo::Todo,
-    persistence::TodoRepository,
+    repositories::TodoRepository,
 };
 
 use crate::{PostgresTodoRepository, tests::container::PostgresContainer};

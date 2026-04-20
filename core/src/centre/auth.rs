@@ -6,7 +6,7 @@ use mockall::automock;
 use crate::{
     error::AuthError,
     model::user::{User, UserId},
-    persistence::AuthRepository,
+    repositories::AuthRepository,
 };
 
 pub type AuthCentreResult<T> = Result<T, AuthError>;

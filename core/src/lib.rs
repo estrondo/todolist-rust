@@ -4,7 +4,7 @@ pub mod model;
 
 pub mod generator;
 
-pub mod persistence;
+pub mod repositories;
 
 pub mod centre;
 

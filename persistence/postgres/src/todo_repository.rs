@@ -10,7 +10,7 @@ use time::PrimitiveDateTime;
 use todolist_core::error::PersistenceError;
 use todolist_core::generator::TimeGenerator;
 use todolist_core::model::todo::{Todo, TodoId};
-use todolist_core::persistence::TodoRepository;
+use todolist_core::repositories::TodoRepository;
 
 #[derive(Clone)]
 pub struct PostgresTodoRepository<T: TimeGenerator> {
