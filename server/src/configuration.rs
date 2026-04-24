@@ -44,18 +44,14 @@ impl Configuration {
      * Let me try it.
      */
     pub fn default() -> (Configuration, Mode) {
-        let args: Vec<String> = env::args().collect();
-        match args.get(1).map(|x| x.to_lowercase()) {
-            Some(value) => match value.as_str() {
+        match env::var("TODOLIST_MODE") {
+            Ok(mode) => match mode.to_lowercase().as_ref() {
                 "dev" => (Self::dev(), Mode::Dev),
                 "stg" => (Self::stg(), Mode::Stg),
                 "prd" => (Self::prd(), Mode::Prd),
-                _ => panic!(
-                    "Configuration failed: The mode '{}' is not recognised, values supported: dev, stg or prd.",
-                    value
-                ),
+                _ => panic!("Invalid mode {mode}."),
             },
-            None => panic!("Configuration failed: No configuration mode."),
+            Err(cause) => panic!("Unable to use the TODOLIST_MODE env var due to: {cause}"),
         }
     }
 
