@@ -19,7 +19,7 @@ impl<'c> SecurityModule<'c> {
     }
 
     pub fn create_auth_info_interceptor(&self) -> impl Interceptor + Clone + 'static {
-        let token_reader = DefaultTokenReader::default();
+        let token_reader = DefaultTokenReader;
         move |request: Request<()>| token_reader.read(request)
     }
 }

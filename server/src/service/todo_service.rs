@@ -11,7 +11,7 @@ use crate::api::v1::todo::{
     SearchResponse, TodayRequest, TodayResponse, UpsertItemRequest, UpsertItemResponse,
 };
 use crate::api::v1::todo_service_server::TodoService;
-use crate::auth::extract_auth_info;
+use crate::auth::AuthInfo;
 use crate::convert::{
     centre_error_to_status, invalid_request_message, unexpected_internal_conversion_error,
 };
@@ -49,7 +49,7 @@ impl TodoService for DefaultTodoService {
         &self,
         request: Request<UpsertItemRequest>,
     ) -> Result<Response<UpsertItemResponse>> {
-        let mut auth_info = extract_auth_info(&request)?;
+        let mut auth_info = AuthInfo::try_from(&request)?;
         let message = request
             .into_inner()
             .item

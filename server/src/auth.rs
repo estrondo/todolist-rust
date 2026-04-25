@@ -45,13 +45,16 @@ impl From<AuthError> for Status {
     }
 }
 
-pub(crate) fn extract_auth_info<A>(request: &Request<A>) -> Result<AuthInfo, Status> {
-    let auth_info: &AuthInfo = request
-        .extensions()
-        .get()
-        .ok_or(Status::unauthenticated("Unauthorised request"))?;
+impl<A> TryFrom<&Request<A>> for AuthInfo {
+    type Error = Status;
 
-    Result::Ok(auth_info.to_owned())
+    fn try_from(request: &Request<A>) -> Result<Self, Self::Error> {
+        let info: &AuthInfo = request
+            .extensions()
+            .get()
+            .ok_or(Status::unauthenticated("Unauthorised request"))?;
+        Result::Ok(info.to_owned())
+    }
 }
 
 #[cfg_attr(test, automock)]
@@ -59,8 +62,8 @@ pub(crate) trait TokenReader {
     fn read(&self, request: Request<()>) -> Result<Request<()>, Status>;
 }
 
-#[derive(Debug, Clone, Default)]
-pub(crate) struct DefaultTokenReader {}
+#[derive(Debug, Clone)]
+pub(crate) struct DefaultTokenReader;
 
 impl DefaultTokenReader {
     const AUTHORISATION_METADATA: &str = "authorisation-bin";
