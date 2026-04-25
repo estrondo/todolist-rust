@@ -1,8 +1,11 @@
+use std::fmt::Debug;
+
 use async_trait::async_trait;
 
 use futures::StreamExt;
 #[cfg(test)]
 use mockall::{automock, predicate::eq};
+use tracing::instrument;
 
 #[cfg(test)]
 use crate::model::{permission::TodoPermissionRole, todo::Todo};
@@ -14,7 +17,7 @@ use crate::{
 
 #[cfg_attr(test, automock)]
 #[async_trait]
-pub trait PermissionCentre: Send + Sync {
+pub trait PermissionCentre: Send + Sync + Debug {
     async fn has_owner(&self, todo_id: &TodoId) -> CentreResult<bool>;
 
     async fn get(&self, todo_id: &TodoId, user_id: &UserId)
@@ -28,6 +31,7 @@ pub trait PermissionCentre: Send + Sync {
     ) -> CentreResult<Option<TodoPermission>>;
 }
 
+#[derive(Debug)]
 pub struct DefaultPermissionCentre<P> {
     permission: P,
 }
@@ -60,31 +64,33 @@ impl<P> PermissionCentre for DefaultPermissionCentre<P>
 where
     P: TodoPermissionRepository,
 {
+    #[instrument(name="default-permission-centre.get",skip_all, fields(todo.id=%todo_id.0, user.id=%user_id.0))]
     async fn get(
         &self,
         todo_id: &TodoId,
         user_id: &UserId,
     ) -> CentreResult<Option<TodoPermission>> {
-        log::debug!(todo:?=todo_id, user:?=user_id; "Looking for todo permission");
+        log::debug!("Looking for todo permission");
         match self.permission.get(todo_id, user_id).await? {
             result @ Some(_) => {
-                log::debug!(todo:?=todo_id, user:?=user_id; "Todo permission was found");
+                log::debug!("Todo permission was found");
                 Ok(result)
             }
             result @ None => {
-                log::warn!(todo:?=todo_id, user:?=user_id;"Todo permission not found");
+                log::warn!("Todo permission not found");
                 Ok(result)
             }
         }
     }
 
+    #[instrument(name="default-permission-centre.has-owner",skip_all, fields(todo.id=%todo_id.0))]
     async fn has_owner(&self, todo_id: &TodoId) -> CentreResult<bool> {
         // TODO: I just wanted to make something with Stream pretty early (Actually I forgot what I needed and used stream with no brain).
         let stream = self.permission.search_permission_by_todo_id(todo_id).await;
 
         match stream {
             Ok(mut stream) => {
-                log::debug!(todo:?=todo_id;"Reading permission");
+                log::debug!("Reading permission");
 
                 while let Some(result) = stream.next().await {
                     match result {
@@ -96,18 +102,19 @@ where
                 CentreResult::Ok(false)
             }
             Err(cause) => {
-                log::warn!(todo:?=todo_id;"Unable to search the permission");
+                log::warn!("Unable to search the permission");
                 CentreResult::Err(CentreError::from(cause))
             }
         }
     }
 
+    #[instrument(name="default-permission-centre.upsert",skip_all, fields(todo.id=%todo_permission.todo_id.0, user.id=%todo_permission.user_id.0))]
     async fn upsert(&self, todo_permission: &TodoPermission) -> CentreResult<TodoPermission> {
-        log::debug!(todo:?=todo_permission.todo_id,user:?=todo_permission.user_id;"Inserting a new todo permission");
+        log::debug!("Inserting a new todo permission");
         match self.permission.upsert(&todo_permission).await {
             Ok(result) => CentreResult::Ok(result),
             Err(cause) => {
-                log::error!(todo:?=todo_permission.todo_id,user:?=todo_permission.user_id;"Unable to insert the permission");
+                log::error!("Unable to insert the permission");
                 Err(CentreError::Unexpected(
                     "Unable to insert the permission".into(),
                     Some(Box::new(cause)),
@@ -116,11 +123,12 @@ where
         }
     }
 
+    #[instrument(name="default-permission-centre.remove",skip_all, fields(todo.id=%todo_permission.todo_id.0, user.id=%todo_permission.user_id.0))]
     async fn remove(
         &self,
         todo_permission: &TodoPermission,
     ) -> CentreResult<Option<TodoPermission>> {
-        log::info!(todo:?=todo_permission.todo_id,user:?=todo_permission.user_id; "Removing todo permission");
+        log::info!("Removing todo permission");
         match self
             .permission
             .remove(&todo_permission.todo_id, &todo_permission.user_id)

@@ -14,12 +14,13 @@ o2o.workspace = true
 prost.workspace = true
 sea-orm.workspace = true
 serde.workspace = true
-simple_logger.workspace = true
 time.workspace = true
 tokio-stream.workspace = true
 tokio.workspace = true
 tonic-prost.workspace = true
 tonic.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]

@@ -12,6 +12,7 @@ log.workspace = true
 mockall.workspace = true
 orn.workspace = true
 time.workspace = true
+tracing.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]

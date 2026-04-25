@@ -51,7 +51,13 @@ impl Configuration {
                 "prd" => (Self::prd(), Mode::Prd),
                 _ => panic!("Invalid mode {mode}."),
             },
-            Err(cause) => panic!("Unable to use the TODOLIST_MODE env var due to: {cause}"),
+            Err(cause) => {
+                if cfg!(debug_assertions) == true {
+                    (Self::dev(), Mode::Dev)
+                } else {
+                    panic!("Unable to use the TODOLIST_MODE env var due to: {cause}")
+                }
+            }
         }
     }
 

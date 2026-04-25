@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::PersistenceResult;
 use crate::model::todo::{Todo, TodoId};
 use async_trait::async_trait;
@@ -7,7 +9,7 @@ use mockall::{automock, predicate::eq};
 
 #[cfg_attr(test, automock)]
 #[async_trait]
-pub trait TodoRepository: Send + Sync {
+pub trait TodoRepository: Send + Sync + Debug {
     async fn get(&self, id: &TodoId) -> PersistenceResult<Option<Todo>>;
     async fn upsert(&self, todo: &Todo) -> PersistenceResult<Todo>;
     async fn remove(&self, todo_id: &TodoId) -> PersistenceResult<Option<Todo>>;

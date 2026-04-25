@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use async_trait::async_trait;
 
 use super::PersistenceResult;
@@ -11,7 +13,7 @@ use mockall::automock;
 
 #[cfg_attr(test, automock)]
 #[async_trait]
-pub trait TodoPermissionRepository: Send + Sync {
+pub trait TodoPermissionRepository: Send + Sync + Debug {
     async fn get(
         &self,
         todo_id: &TodoId,
