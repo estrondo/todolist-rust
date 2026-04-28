@@ -9,3 +9,12 @@ services:
       POSTGRES_DB: todolist
     ports:
       - 5432:5432
+
+  otel:
+    image: docker.io/grafana/otel-lgtm:0.26.0
+    environment:
+      - ENABLE_LOGS_LOKI=true
+    ports:
+      - 3000:3000
+      - 4317:4317
+      - 4318:4318

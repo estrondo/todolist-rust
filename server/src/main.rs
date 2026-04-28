@@ -1,3 +1,5 @@
+mod start_tracing;
+
 use config::Config;
 use core::error::Error;
 use log;
@@ -11,20 +13,13 @@ use todolist_server::{
     },
 };
 use tonic::transport::Server;
-use tracing::Level;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let subscriber = tracing_subscriber::fmt();
-
-    if cfg!(debug_assertions) {
-        subscriber.with_max_level(Level::INFO).init();
-    } else {
-        subscriber.init();
-    }
+    let (configuration, mode) = Configuration::default();
+    start_tracing::with(&configuration);
 
     log::info!("Starting Estrondo's TODOList Server");
-    let (configuration, mode) = Configuration::default();
     log::info!("Initialising in {:?} mode.", mode);
 
     let configuration: Configuration = Config::builder()
