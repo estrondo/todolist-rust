@@ -28,7 +28,7 @@ sea-orm = { version = "2.0.0-rc", features = [
 ] }
 opentelemetry = { version = "0.31.0" }
 opentelemetry_sdk = { version = "0.31.0" }
-opentelemetry-otlp = { version = "0.31.1" }
+opentelemetry-otlp = { version = "0.31.1", features = ["grpc-tonic"] }
 opentelemetry-appender-tracing = { version = "0.31.1" }
 serde = { version = "1.0.228", features = ["derive"] }
 simple_logger = { version = "5.1.0" }
@@ -41,5 +41,5 @@ tonic-prost = "0.14.3"
 tonic-prost-build = "0.14.3"
 tracing = { version = "0.1.44" }
 tracing-opentelemetry = "0.32.1"
-tracing-subscriber = { version = "0.3.23" }
+tracing-subscriber = { version = "0.3.23", features = ["registry"] }
 uuid = { version = "1.20.0", features = ["v7"] }

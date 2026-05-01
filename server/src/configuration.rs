@@ -7,6 +7,7 @@ pub struct Configuration {
     pub(crate) security: Security,
     pub server: Server,
     pub(crate) postgres: Postgres,
+    pub otel: Otel,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +34,11 @@ pub enum Mode {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub(crate) struct Security {
     pub token_version: TokenVersion,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Otel {
+    pub grpc_endpoint: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -75,6 +81,9 @@ impl Configuration {
                 password: String::from("todolist"),
                 address: String::from("localhost"),
                 database: String::from("todolist"),
+            },
+            otel: Otel {
+                grpc_endpoint: "http://127.0.0.1:4317".into(),
             },
         }
     }
