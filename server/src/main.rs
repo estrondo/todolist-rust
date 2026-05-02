@@ -16,7 +16,6 @@ use todolist_server::{
 use tonic::transport::Server;
 
 #[tokio::main]
-
 async fn main() -> Result<(), Box<dyn Error>> {
     let (configuration, mode) = Configuration::default();
     start_tracing(&configuration, &mode).await;
