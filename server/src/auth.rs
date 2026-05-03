@@ -14,7 +14,7 @@ pub struct AuthInfo {
 }
 
 impl AuthInfo {
-    pub fn user_id(&mut self) -> Result<UserId, AuthError> {
+    pub fn user_id(&self) -> Result<UserId, AuthError> {
         let mut token = self.token.to_owned();
         match token.try_get_u128() {
             Ok(bytes) => Ok(UserId(Uuid::from_u128(bytes))),
@@ -52,7 +52,7 @@ impl<A> TryFrom<&Request<A>> for AuthInfo {
         let info: &AuthInfo = request
             .extensions()
             .get()
-            .ok_or(Status::unauthenticated("Unauthorised request"))?;
+            .ok_or(Status::unauthenticated("You need a token!"))?;
         Result::Ok(info.to_owned())
     }
 }

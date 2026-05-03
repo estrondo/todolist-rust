@@ -11,6 +11,8 @@ async-trait.workspace = true
 futures.workspace = true
 sea-orm.workspace = true
 time.workspace = true
+tracing.workspace = true
+log.workspace = true
 
 [dev-dependencies]
 checkito_ext.path = "../../ext/checkito"

@@ -1,11 +1,13 @@
+mod start_tracing;
+
+use crate::start_tracing::start_tracing;
 use config::Config;
 use core::error::Error;
 use log;
-use simple_logger::{self, SimpleLogger};
 use std::net::SocketAddr;
 use todolist_server::{
     api::v1::todo_service_server::TodoServiceServer,
-    configuration::{Configuration, Mode},
+    configuration::Configuration,
     module::{
         manager::CentreModule, repository::RepositoryModule, security::SecurityModule,
         service::ServiceModule,
@@ -15,20 +17,11 @@ use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    SimpleLogger::new().env().init().unwrap();
+    let (configuration, mode) = Configuration::default();
+    start_tracing(&configuration, &mode).await;
 
     log::info!("Starting Estrondo's TODOList Server");
-
-    let (configuration, mode) = Configuration::default();
-
-    log::info!(
-        "{}",
-        match mode {
-            Mode::Dev => "Well, it's starting in development environment, let's make it happen!",
-            Mode::Stg => "Are you ready to test? I am starting for tests purposes!",
-            Mode::Prd => "Okay, our mission is to help the people to have their lives organised!",
-        }
-    );
+    log::info!("Initialising in {:?} mode.", mode);
 
     let configuration: Configuration = Config::builder()
         .add_source(Config::try_from(&configuration)?)

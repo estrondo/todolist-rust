@@ -5,43 +5,44 @@ use std::{
 };
 
 #[derive(Debug)]
-pub struct ConvertError {
-    message: String,
-}
-
-impl ConvertError {
-    pub fn message(&self) -> String {
-        self.message.clone()
-    }
-}
+pub struct ConvertError(pub String, pub Option<Box<dyn Error>>);
 
 impl From<String> for ConvertError {
     fn from(message: String) -> Self {
-        Self { message }
+        Self(message, None)
     }
 }
 
 impl From<&str> for ConvertError {
     fn from(value: &str) -> Self {
-        Self {
-            message: String::from(value),
+        Self(value.into(), None)
+    }
+}
+
+impl Display for ConvertError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)?;
+        match &self.1 {
+            Some(cause) => {
+                f.write_str(" -> ")?;
+                Display::fmt(cause, f)
+            }
+            None => Ok(()),
         }
     }
 }
 
+impl Error for ConvertError {}
+
 impl From<uuid::Error> for ConvertError {
     fn from(value: uuid::Error) -> Self {
-        Self {
-            message: value.to_string(),
-        }
+        Self("UUID Error".into(), Some(Box::new(value)))
     }
 }
 
 impl From<Infallible> for ConvertError {
     fn from(_: Infallible) -> Self {
-        ConvertError {
-            message: String::from("Unexpected error!"),
-        }
+        ConvertError(String::from("Unexpected error!"), None)
     }
 }
 

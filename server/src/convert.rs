@@ -15,15 +15,18 @@ use crate::api::v1::{
 };
 
 pub(crate) fn invalid_request_message(error: ConvertError) -> Status {
-    Status::invalid_argument(error.message())
+    Status::invalid_argument(error.0)
 }
 
 pub(crate) fn unexpected_internal_conversion_error(error: ConvertError) -> Status {
-    Status::internal(error.message())
+    Status::internal(error.0)
 }
 
-pub(crate) fn centre_error_to_status(_error: CentreError) -> Status {
-    Status::internal("Ops!")
+pub(crate) fn centre_error_to_status(error: CentreError) -> Status {
+    match error {
+        CentreError::Unexpected(_, _) => Status::internal("An internal error happened"),
+        CentreError::Unauthorized(message, _) => Status::permission_denied(message),
+    }
 }
 
 impl TryInto<TodoContent> for Content {

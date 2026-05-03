@@ -11,8 +11,9 @@ use todolist_core::error::PersistenceError;
 use todolist_core::generator::TimeGenerator;
 use todolist_core::model::todo::{Todo, TodoId};
 use todolist_core::repositories::todo::TodoRepository;
+use tracing::instrument;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PostgresTodoRepository<T: TimeGenerator> {
     connection: DatabaseConnection,
     time_generator: T,
@@ -29,6 +30,7 @@ impl<T: TimeGenerator> PostgresTodoRepository<T> {
 
 #[async_trait]
 impl<T: TimeGenerator> TodoRepository for PostgresTodoRepository<T> {
+    #[instrument(name="postgres-todo-repository.get",skip_all, fields(todo.id=%id.0))]
     async fn get(&self, id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
         let opt = Entity::find_by_id(id.0)
             .one(&self.connection)
@@ -41,6 +43,7 @@ impl<T: TimeGenerator> TodoRepository for PostgresTodoRepository<T> {
         }
     }
 
+    #[instrument(name="postgres-todo-repository.upsert",skip_all, fields(todo.id=%todo.id.0))]
     async fn upsert(&self, todo: &Todo) -> Result<Todo, PersistenceError> {
         let metadata = new_metadata(&self.time_generator);
 
@@ -68,9 +71,11 @@ impl<T: TimeGenerator> TodoRepository for PostgresTodoRepository<T> {
 
         Ok(returned)
     }
-    async fn remove(&self, _todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
+
+    #[instrument(name="postgres-todo-repository.remove",skip_all, fields(todo.id=%todo_id.0))]
+    async fn remove(&self, todo_id: &TodoId) -> Result<Option<Todo>, PersistenceError> {
         let model = Entity::delete(ActiveModel {
-            id: Set(_todo_id.0.to_owned()),
+            id: Set(todo_id.0.to_owned()),
             ..Default::default()
         })
         .exec_with_returning(&self.connection)

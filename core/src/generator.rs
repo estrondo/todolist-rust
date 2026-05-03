@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use time::{PrimitiveDateTime, UtcDateTime};
 
-pub trait TimeGenerator: Send + Sync + Clone {
+pub trait TimeGenerator: Send + Sync + Clone + Debug {
     fn new_utc_date_time(&self) -> UtcDateTime;
 
     fn new_utc_primitive_date_time(&self) -> PrimitiveDateTime {
@@ -10,7 +12,7 @@ pub trait TimeGenerator: Send + Sync + Clone {
 }
 
 /// Default implementation of [`TimeGenerator`] that generates UTC timestamps.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct DefaultTimeGenerator {}
 
 impl TimeGenerator for DefaultTimeGenerator {

@@ -1,9 +1,10 @@
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 
 #[cfg(test)]
 use mockall::automock;
+use tracing::instrument;
 
 use crate::{
     centre::{CentreError, CentreResult, permission::PermissionCentre},
@@ -17,12 +18,13 @@ use crate::{
 
 #[async_trait]
 #[cfg_attr(test, automock)]
-pub trait TodoCentre: Send + Sync {
+pub trait TodoCentre: Send + Sync + Debug {
     async fn upsert(&self, todo: &Todo, user_id: &UserId) -> CentreResult<Todo>;
 
     async fn remove(&self, todo_id: &TodoId, user_id: &UserId) -> CentreResult<Option<Todo>>;
 }
 
+#[derive(Debug)]
 pub struct DefaultTodoCentre<T, P> {
     todo: T,
     permission: P,
@@ -40,6 +42,7 @@ where
     T: TodoRepository,
     P: PermissionCentre,
 {
+    #[instrument(name="default-todo-centre.upsert",skip_all, fields(todo.id=%todo.id.0, user.id=%user_id.0))]
     async fn upsert(&self, todo: &Todo, user_id: &UserId) -> CentreResult<Todo> {
         let todo_permission = self
             .permission
@@ -51,14 +54,14 @@ where
 
         match todo_permission {
             Some(todo_permission) if todo_permission.role.can_edit() => {
-                log::info!(todo:?=todo.id, user:?=user_id;"Upserting todo");
+                log::info!("Upserting todo");
                 match self.todo.upsert(todo).await {
                     Ok(upserted) => Ok(upserted),
                     Err(cause) => Err(CentreError::from(cause)),
                 }
             }
             Some(_) => {
-                log::warn!(todo:?=todo.id, user:?=user_id;"An unauthorised attempt to edit a todo item");
+                log::warn!("An unauthorised attempt to edit a todo item");
                 Err(CentreError::Unauthorized(
                     "Unable to edit the todo item".into(),
                     None,
@@ -66,7 +69,7 @@ where
             }
             None => match self.permission.has_owner(&todo.id).await {
                 Ok(true) => {
-                    log::error!(todo:?=todo.id, user:?=user_id;"Security error. An attempt to edit an invalid todo item");
+                    log::error!("Security error. An attempt to edit an invalid todo item");
                     Err(CentreError::Unauthorized("Not allowed".into(), None))
                 }
                 Ok(_) => {
@@ -100,6 +103,7 @@ where
         }
     }
 
+    #[instrument(name="default-todo-centre.remove",skip_all, fields(todo.id=%todo_id.0, user.id=%user_id.0))]
     async fn remove(&self, todo_id: &TodoId, user_id: &UserId) -> CentreResult<Option<Todo>> {
         let permission = self.permission.get(todo_id, user_id).await?;
 
@@ -110,25 +114,30 @@ where
                         Ok(_) => Ok(Some(removed)),
                         Err(error) => {
                             log::warn!(todo:?=todo_id; "Recovering the todo item due to an failure during the permission removing: {}", &error);
-                            let _ = self.todo
-                                    .upsert(&removed)
-                                    .await
-                                    .inspect(|_| log::info!(todo:?=todo_id;"Todo item recovered."))
-                                    .inspect_err(|error| {
-                                        log::error!(todo:?=todo_id;"Unable to recover todo item: {}", error)
-                                    });
+                            let _ = self
+                                .todo
+                                .upsert(&removed)
+                                .await
+                                .inspect(|_| log::info!("Todo item recovered."))
+                                .inspect_err(|error| {
+                                    log::error!("Unable to recover todo item: {}", error)
+                                });
                             CentreResult::Err(CentreError::Unexpected("Unable ".into(), None))
                         }
                     },
                     Ok(None) => {
-                        log::warn!(todo:?=todo_id;"There is no todo item, but there is a permission for it. Cleaning up it");
+                        log::warn!(
+                            "There is no todo item, but there is a permission for it. Cleaning up it"
+                        );
                         match self.permission.remove(&permission).await {
                             Ok(_) => {
-                                log::info!(todo:?=todo_id;"Permission for todo has been removed.");
+                                log::info!("Permission for todo has been removed.");
                                 CentreResult::Ok(None)
                             }
                             Err(error) => {
-                                log::warn!(todo:?=todo_id;"There is a problem. A permission exists for the todo item, but unable to remove it");
+                                log::warn!(
+                                    "There is a problem. A permission exists for the todo item, but unable to remove it"
+                                );
                                 CentreResult::Err(CentreError::Unexpected(
                                     "Unable to remove an orphan permission.".into(),
                                     Some(Box::new(error)),
@@ -137,13 +146,13 @@ where
                         }
                     }
                     Err(cause) => {
-                        log::warn!(todo:?=todo_id;"Unable to remove the todo, an error happened: {}", cause);
+                        log::warn!("Unable to remove the todo, an error happened: {}", cause);
                         CentreResult::Err(CentreError::from(cause))
                     }
                 }
             }
             _ => {
-                log::warn!(todo:?=todo_id; "An unauthorized attempt to remove a todo item");
+                log::warn!("An unauthorized attempt to remove a todo item");
                 return CentreResult::Err(CentreError::Unauthorized(
                     "You are not the owner!".into(),
                     None,
