@@ -23,13 +23,10 @@ pub(crate) async fn start_tracing(configuration: &Configuration, _mode: &Mode) {
         .build()
         .unwrap();
 
-    let span_trace_provider = SdkTracerProvider::builder()
+    let trace_provider = SdkTracerProvider::builder()
         .with_batch_exporter(span_exporter)
         .with_resource(resource.to_owned())
         .build();
-
-    let span_layer =
-        tracing_opentelemetry::layer().with_tracer(span_trace_provider.tracer(APP_NAME));
 
     let log_exporter = LogExporter::builder()
         .with_tonic()
@@ -42,6 +39,7 @@ pub(crate) async fn start_tracing(configuration: &Configuration, _mode: &Mode) {
         .with_resource(resource)
         .build();
 
+    let span_layer = tracing_opentelemetry::layer().with_tracer(trace_provider.tracer(APP_NAME));
     let log_layer = OpenTelemetryTracingBridge::new(&log_provider);
 
     let otel_filter = Targets::new()
